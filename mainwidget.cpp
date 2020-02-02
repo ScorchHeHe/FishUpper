@@ -51,11 +51,18 @@ MainWidget::MainWidget(QWidget *parent)
     header << "Longtitude" << "Latitude";
     ui->auto_tabWidget_locs->setHorizontalHeaderLabels(header);
     ui->auto_tabWidget_locs->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    this->on_auto_btn_clear_clicked();
+    ui->auto_tabWidget_locs->setItem(0, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(0, 1, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(1, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(1, 1, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(2, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(2, 1, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(3, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(3, 1, new QTableWidgetItem("-"));
 
     m_webview = new QWebEngineView(ui->auto_tab);
     m_webview->setGeometry(QRect(10, 30, 581, 341));
-    m_webview->load(QUrl("file:///home/gjh/Code/FishUpper/webview/walkroute.html"));
+    m_webview->load(QUrl("file:///home/gjh/Code/FishUpper/webview/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
@@ -333,6 +340,8 @@ void MainWidget::serial_rec_data_process()
     Stm32_Data_Package stm32_data;
     PolaV6_Data_Package polav6_data;
     Base_Frame base_frame;
+    QString command = QString("translate_and_marker(%1, %2, %3)").arg(ui->polav6_label_text_long->text())
+            .arg(ui->polav6_label_text_lat->text()).arg(0);
     switch (rec_data[3]) {
     // stm32 data
     case FRAME_FUNC_STM32:
@@ -405,7 +414,9 @@ void MainWidget::serial_rec_data_process()
         ui->polav6_label_text_omg_z->setText(QString::number(polav6_data.omg_z, 'f', 2));
         ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
         ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
-        ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));
+        ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));      
+        // map zoom center
+        m_webview->page()->runJavaScript(command);
         // record polav6 data
         if (local_record_flag){
             record_file_init("polav6");
@@ -894,6 +905,11 @@ void MainWidget::on_auto_btn_add_locs_clicked()
             ui->auto_tabWidget_locs->setItem(location_count, 0, new QTableWidgetItem(ui->auto_lineEdit_longt->text()));
             ui->auto_tabWidget_locs->setItem(location_count, 1, new QTableWidgetItem(ui->auto_lineEdit_lat->text()));
             ++location_count;
+            QString add_point_cmd = QString("translate_and_mark(%1, %2);").arg(ui->auto_lineEdit_longt->text())
+                    .arg(ui->auto_lineEdit_lat->text());
+            m_webview->page()->runJavaScript(add_point_cmd);
+            ui->auto_lineEdit_longt->clear();
+            ui->auto_lineEdit_lat->clear();
         }
     }
 }
@@ -910,6 +926,8 @@ void MainWidget::on_auto_btn_add_locs_clicked()
 **/
 void MainWidget::on_auto_btn_clear_clicked()
 {
+    QString reset_cmd = QString("reset();");
+    m_webview->page()->runJavaScript(reset_cmd);
     ui->auto_tabWidget_locs->setItem(0, 0, new QTableWidgetItem("-"));
     ui->auto_tabWidget_locs->setItem(0, 1, new QTableWidgetItem("-"));
     ui->auto_tabWidget_locs->setItem(1, 0, new QTableWidgetItem("-"));
@@ -985,6 +1003,9 @@ void MainWidget::on_auto_btn_execute_clicked()
 //    sleep_ms(200);
 //    serial_write_data(&auto_frame.head_h, auto_frame.len + 2);
     this->on_auto_btn_clear_clicked();
+
+    QString reset_cmd = QString("reset();");
+    m_webview->page()->runJavaScript(reset_cmd);
 }
 
 /**

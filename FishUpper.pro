@@ -34,4 +34,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     documents/HDUBeagleBoneSTM32串口通信协议数据表3.0.xlsx \
+    webview/FishMap.html \
     webview/walkroute.html

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>  
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>FishMap</title>
+<style type="text/css">  
+    html{height:100%}  
+    body{height:100%;margin:0px;padding:0px}
+	#container{height:100%;width:100%;}	   
+</style> 
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=lOqh97SCr5cPI09GRyUHtOk8UDWq73ka">
+</script>
+</head>
+
+<body>  
+<div id="container"></div> 
+
+<script type="text/javascript"> 
+    // 百度地图API功能
+    var map;
+
+    // 初始化地图
+    function init_map(){
+        map = new BMap.Map("container");
+        map.centerAndZoom("杭州");
+        map.addControl(new BMap.NavigationControl());
+        map.enableScrollWheelZoom(true);
+    }
+
+    // 将GPS坐标转化为百度坐标，并在地图中标记
+    function translate_and_mark(longtitude, latitude){
+        var point = new BMap.Point(longtitude, latitude);
+    	var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(point);
+
+        translate_callback = function (data){
+      		if (data.status === BMAP_STATUS_SUCCESS) {
+                // 标记当前坐标
+                var marker = new BMap.Marker(data.points[0]);
+                map.addOverlay(marker);
+                map.setZoom(15);
+                map.panTo(data.points[0]);                   
+      		}
+    	}
+        convertor.translate(pointArr, 1, 5, translate_callback)
+    }
+
+    // 鼠标点击拾取经纬度
+	function add_clicked_listener() {
+		map.addEventListener("click", function(e){
+            alert(e.point.lng + "," + e.point.lat);
+            // return e.point.lng + "," + e.point.lat;
+        });
+	}
+
+	function reset() {
+        map.clearOverlays();
+        map.centerAndZoom("杭州");
+    }
+    
+    init_map();
+    add_clicked_listener();
+</script>  
+</body>  
+</html>
