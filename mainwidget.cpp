@@ -15,6 +15,7 @@
 #include <QTime>
 #include <QCoreApplication>
 
+
 /**
  * Class name: MainWidget
  * Brief: UI of AUV upper software
@@ -28,7 +29,8 @@ MainWidget::MainWidget(QWidget *parent)
       ui(new Ui::MainWidget),
       m_serialport(new QSerialPort),
       m_timer(new QTimer),
-      m_mutex(new QMutex)
+      m_mutex(new QMutex),
+      m_webchannel(new QWebChannel)
 {
     ui->setupUi(this);
     ui->leak_tabel_text_front->setStyleSheet("color:green");
@@ -47,18 +49,13 @@ MainWidget::MainWidget(QWidget *parent)
     ui->pwr_checkBox_bbb->setChecked(true);
     ui->pwr_checkBox_bbb->setStyleSheet("color:green");
 
-    QStringList header;
-    header << "Longtitude" << "Latitude";
-    ui->auto_tabWidget_locs->setHorizontalHeaderLabels(header);
+    QStringList hor_header, ver_header;
+    hor_header << "Longtitude" << "Latitude";
+    ver_header << "1" << "2" << "3" << "4";
+    ui->auto_tabWidget_locs->setHorizontalHeaderLabels(hor_header);
+    ui->auto_tabWidget_locs->setVerticalHeaderLabels(ver_header);
     ui->auto_tabWidget_locs->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->auto_tabWidget_locs->setItem(0, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(0, 1, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(1, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(1, 1, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(2, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(2, 1, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(3, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(3, 1, new QTableWidgetItem("-"));
+    this->init_tabwidget_locs();
 
     m_webview = new QWebEngineView(ui->auto_tab);
     m_webview->setGeometry(QRect(10, 30, 581, 341));
@@ -69,6 +66,10 @@ MainWidget::MainWidget(QWidget *parent)
     connect(m_timer, SIGNAL(timeout()), this, SLOT(query_data()));
 
     this->scan_serialport();
+
+    // publish a MainWidget object to m_webchannel
+    m_webchannel->registerObject("mainwidget", this);
+    m_webview->page()->setWebChannel(m_webchannel);
 }
 
 MainWidget::~MainWidget()
@@ -340,8 +341,7 @@ void MainWidget::serial_rec_data_process()
     Stm32_Data_Package stm32_data;
     PolaV6_Data_Package polav6_data;
     Base_Frame base_frame;
-    QString command = QString("translate_and_marker(%1, %2, %3)").arg(ui->polav6_label_text_long->text())
-            .arg(ui->polav6_label_text_lat->text()).arg(0);
+    QString current_location_cmd;
     switch (rec_data[3]) {
     // stm32 data
     case FRAME_FUNC_STM32:
@@ -415,8 +415,13 @@ void MainWidget::serial_rec_data_process()
         ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
         ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
         ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));      
-        // map zoom center
-        m_webview->page()->runJavaScript(command);
+
+        // show current location in map(javascript)
+        current_location_cmd = QString("current_location(%1, %2);").
+                arg(polav6_data.longtitude / 10000000.0).
+                arg(polav6_data.latitude / 10000000.0);
+        m_webview->page()->runJavaScript(current_location_cmd);
+
         // record polav6 data
         if (local_record_flag){
             record_file_init("polav6");
@@ -902,16 +907,26 @@ void MainWidget::on_auto_btn_add_locs_clicked()
     }
     if (location_count < 4){
         if(ui->auto_tabWidget_locs->item(location_count,0)->text() == "-"){
-            ui->auto_tabWidget_locs->setItem(location_count, 0, new QTableWidgetItem(ui->auto_lineEdit_longt->text()));
-            ui->auto_tabWidget_locs->setItem(location_count, 1, new QTableWidgetItem(ui->auto_lineEdit_lat->text()));
-            ++location_count;
-            QString add_point_cmd = QString("translate_and_mark(%1, %2);").arg(ui->auto_lineEdit_longt->text())
-                    .arg(ui->auto_lineEdit_lat->text());
+            ui->auto_tabWidget_locs->item(location_count,0)->setText(ui->auto_lineEdit_longt->text());
+            ui->auto_tabWidget_locs->item(location_count,1)->setText(ui->auto_lineEdit_lat->text());
+            QString add_point_cmd = QString("set_destination(%1, %2, %3);").arg(ui->auto_lineEdit_longt->text())
+                    .arg(ui->auto_lineEdit_lat->text()).arg(location_count);
             m_webview->page()->runJavaScript(add_point_cmd);
             ui->auto_lineEdit_longt->clear();
             ui->auto_lineEdit_lat->clear();
+            ++location_count;
         }
     }
+}
+
+void MainWidget::on_auto_btn_locate_clicked()
+{
+    if (ui->auto_lineEdit_longt->text().isEmpty() || ui->auto_lineEdit_longt->text().isEmpty()){
+        return;
+    }
+    QString add_point_cmd = QString("locate(%1, %2);").arg(ui->auto_lineEdit_longt->text())
+            .arg(ui->auto_lineEdit_lat->text());
+    m_webview->page()->runJavaScript(add_point_cmd);
 }
 
 /**
@@ -926,17 +941,12 @@ void MainWidget::on_auto_btn_add_locs_clicked()
 **/
 void MainWidget::on_auto_btn_clear_clicked()
 {
-    QString reset_cmd = QString("reset();");
-    m_webview->page()->runJavaScript(reset_cmd);
-    ui->auto_tabWidget_locs->setItem(0, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(0, 1, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(1, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(1, 1, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(2, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(2, 1, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(3, 0, new QTableWidgetItem("-"));
-    ui->auto_tabWidget_locs->setItem(3, 1, new QTableWidgetItem("-"));
-    location_count = 0;
+    if (ui->auto_tabWidget_locs->item(0, 0)->text() != "-"){
+        // reset map in javascript
+        QString reset_cmd = QString("reset();");
+        m_webview->page()->runJavaScript(reset_cmd);
+        this->init_tabwidget_locs();
+    }
 }
 
 /**
@@ -944,16 +954,41 @@ void MainWidget::on_auto_btn_clear_clicked()
  * Brief: auto_btn_delete clicked slot, delete selected locations(longtitude and latitude) in tabelwidget
  * Author: GJH
  * Paras: None
- * Return: Void
+ * Return:
  * Version: 0.1
  * See:
  * Date: 2020.1.13
 **/
 void MainWidget::on_auto_btn_delete_clicked()
 {
-    if(ui->auto_tabWidget_locs->item(ui->auto_tabWidget_locs->currentRow(),0)->text() != "-"){
-        ui->auto_tabWidget_locs->setItem(ui->auto_tabWidget_locs->currentRow(), 0, new QTableWidgetItem("-"));
-        ui->auto_tabWidget_locs->setItem(ui->auto_tabWidget_locs->currentRow(), 1, new QTableWidgetItem("-"));
+    if (ui->auto_tabWidget_locs->item(0, 0)->text() != "-"){
+        // delete 1st 2nd 3rd locations, need to move data in tabwidget
+        if (ui->auto_tabWidget_locs->currentRow() < 3){
+            // after deleted data
+            for (int i = ui->auto_tabWidget_locs->currentRow(); i < 3; ++i){
+                // move data upward
+                if (ui->auto_tabWidget_locs->item(i + 1, 0)->text() != "-"){
+                    ui->auto_tabWidget_locs->item(i,0)->setText(ui->auto_tabWidget_locs->item(i + 1, 0)->text());
+                    ui->auto_tabWidget_locs->item(i,1)->setText(ui->auto_tabWidget_locs->item(i + 1, 1)->text());
+                }
+                // last data, set "-"
+                else {
+                    ui->auto_tabWidget_locs->item(i, 0)->setText("-");
+                    ui->auto_tabWidget_locs->item(i, 1)->setText("-");
+                    break;
+                }
+            }
+        }
+
+        // delete corresponding marker in javascript
+        QString delete_marker_cmd = QString("delete_marker(%1);").arg(ui->auto_tabWidget_locs->currentRow());
+        m_webview->page()->runJavaScript(delete_marker_cmd);
+
+        ui->auto_tabWidget_locs->item(3,0)->setText("-");
+        ui->auto_tabWidget_locs->item(3,1)->setText("-");
+        if (location_count > 0)
+            --location_count;
+        ui->auto_tabWidget_locs->setCurrentItem(NULL);
     }
 }
 
@@ -1105,4 +1140,35 @@ void MainWidget::sleep_ms(uint16_t ms)
     QTime dieTime = QTime::currentTime().addMSecs(ms);
     while( QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+
+void MainWidget::init_tabwidget_locs()
+{
+    ui->auto_tabWidget_locs->setItem(0, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(0, 1, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(1, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(1, 1, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(2, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(2, 1, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(3, 0, new QTableWidgetItem("-"));
+    ui->auto_tabWidget_locs->setItem(3, 1, new QTableWidgetItem("-"));
+    location_count = 0;
+}
+
+void MainWidget::map_clicked(QString longtitude, QString latitude){
+    ui->auto_lineEdit_longt->setText(longtitude);
+    ui->auto_lineEdit_lat->setText(latitude);
+}
+
+void MainWidget::on_auto_btn_find_me_clicked()
+{
+    // for test
+    static float lng = 120;
+    static float lat = 30;
+    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
+    m_webview->page()->runJavaScript(current_location_cmd);
+    lng = lng + 0.1;
+
+    QString pan_to_current_cmd = QString("pan_to_current();");
+    m_webview->page()->runJavaScript(pan_to_current_cmd);
 }

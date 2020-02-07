@@ -11,6 +11,7 @@
 #include <QByteArray>
 #include <QFile>
 #include <QtWebEngineWidgets/QWebEngineView>
+#include <QWebChannel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWidget; }
@@ -21,8 +22,11 @@ class MainWidget : public QWidget
     Q_OBJECT
 
 public:
-    MainWidget(QWidget *parent = nullptr);
+    explicit MainWidget(QWidget *parent = nullptr);
     ~MainWidget();
+
+public slots:
+    void map_clicked(QString longtitude, QString latitude);
 
 private slots:
     void on_serst_btn_refresh_clicked();
@@ -77,6 +81,8 @@ private slots:
 
     void on_auto_btn_add_locs_clicked();
 
+    void on_auto_btn_locate_clicked();
+
     void on_auto_btn_clear_clicked();
 
     void on_auto_btn_delete_clicked();
@@ -91,6 +97,8 @@ private slots:
 
     void on_posi_btn_reset_clicked();
 
+    void on_auto_btn_find_me_clicked();
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
@@ -98,17 +106,21 @@ private:
     QMutex* m_mutex;
     QFile* logfile;
     QWebEngineView* m_webview;
+    QWebChannel* m_webchannel;
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];
     uint8_t rec_flag = 0x00;
     uint16_t rec_index = 0x00;
 
+    // current longtitude and latitude
+    float curr_lng, curr_lat;
+
     // xor check result and value
     uint8_t xor_result[2] {0, 0x00};
 
     // auto cruise destination coordinates count
-    uint8_t location_count = 0;
+    uint8_t location_count;
 
     // local record enable flag
     bool local_record_flag = false;
@@ -136,6 +148,8 @@ private:
     void local_record_polav6(PolaV6_Data_Package polav6_data);
 
     void sleep_ms(uint16_t ms);
+
+    void init_tabwidget_locs();
 
 };
 #endif // MAINWIDGET_H

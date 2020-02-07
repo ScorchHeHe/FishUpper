@@ -11,6 +11,8 @@
 </style> 
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=lOqh97SCr5cPI09GRyUHtOk8UDWq73ka">
 </script>
+<script type="text/javascript" src="/opt/Qt5.14.0/Examples/Qt-5.14.0/webchannel/shared/qwebchannel.js">
+</script>
 </head>
 
 <body>  
@@ -19,49 +21,139 @@
 <script type="text/javascript"> 
     // 百度地图API功能
     var map;
+    var mainwidget;
+    var tmp_marker;
+    var current_marker;
+    var current_point;
+    var previous_point;
+    var dstn_marker = [];
+    var dstn_marker_label = []
+    var draw_flag = 0;
 
     // 初始化地图
     function init_map(){
         map = new BMap.Map("container");
         map.centerAndZoom("杭州");
-        map.addControl(new BMap.NavigationControl());
+        // map.addControl(new BMap.NavigationControl());
         map.enableScrollWheelZoom(true);
     }
 
     // 将GPS坐标转化为百度坐标，并在地图中标记
-    function translate_and_mark(longtitude, latitude){
-        var point = new BMap.Point(longtitude, latitude);
-    	var convertor = new BMap.Convertor();
-        var pointArr = [];
-        pointArr.push(point);
+    // function translate_and_mark(longtitude, latitude){
+    //     var point = new BMap.Point(longtitude, latitude);
+    // 	   var convertor = new BMap.Convertor();
+    //     var pointArr = [];
+    //     pointArr.push(point);
 
-        translate_callback = function (data){
-      		if (data.status === BMAP_STATUS_SUCCESS) {
-                // 标记当前坐标
-                var marker = new BMap.Marker(data.points[0]);
-                map.addOverlay(marker);
-                map.setZoom(15);
-                map.panTo(data.points[0]);                   
-      		}
-    	}
-        convertor.translate(pointArr, 1, 5, translate_callback)
+    //     translate_callback = function (data){
+    //   		if (data.status === BMAP_STATUS_SUCCESS) {
+    //             // 标记当前坐标
+    //             var marker = new BMap.Marker(data.points[0]);
+    //             map.addOverlay(marker);
+    //             map.setZoom(15);
+    //             map.panTo(data.points[0]);                   
+    //   		}
+    // 	}
+    //     convertor.translate(pointArr, 1, 5, translate_callback)
+    // }
+
+    function locate(longtitude, latitude){
+        map.removeOverlay(tmp_marker);
+        var point = new BMap.Point(longtitude, latitude);
+        tmp_marker = new BMap.Marker(point);
+        map.addOverlay(tmp_marker);
+        var label = new BMap.Label("经度: " + longtitude.toFixed(6) + "<br>" +
+                                   "纬度: " + latitude.toFixed(6),{offset:new BMap.Size(20,-35)});
+        tmp_marker.setLabel(label);
+        map.panTo(point);
+    }
+
+    function set_destination(longtitude, latitude, location_count){
+        map.removeOverlay(tmp_marker);
+        var point = new BMap.Point(longtitude, latitude);
+        dstn_marker[location_count] = new BMap.Marker(point);
+        map.addOverlay(dstn_marker[location_count]);
+        dstn_marker_label[location_count] = new BMap.Label
+            ("目的地" + (location_count + 1), {offset:new BMap.Size(20,-15)});
+        dstn_marker[location_count].setLabel(dstn_marker_label[location_count]);
+        dstn_marker[location_count].setTitle("经度: " + longtitude.toFixed(6) + "\n" +
+                                             "纬度: " + latitude.toFixed(6));
+        map.panTo(point);
+    }
+
+    function delete_marker(location_count){
+        if (dstn_marker[location_count] != 'undefined'){
+            map.removeOverlay(dstn_marker[location_count]);
+            dstn_marker.splice(location_count, 1);
+            dstn_marker_label.splice(location_count, 1);
+            while (dstn_marker_label[location_count] != 'undefined'){
+                dstn_marker_label[location_count].setContent
+                    ("目的地" + (location_count + 1));
+                ++location_count;
+            }
+        }
     }
 
     // 鼠标点击拾取经纬度
-	function add_clicked_listener() {
+	function clicked_listener() {
 		map.addEventListener("click", function(e){
-            alert(e.point.lng + "," + e.point.lat);
-            // return e.point.lng + "," + e.point.lat;
+            locate(e.point.lng, e.point.lat);
+            if (typeof qt != 'undefined'){
+                new QWebChannel(qt.webChannelTransport, function(channel){
+                    mainwidget = channel.objects.mainwidget
+                    mainwidget.map_clicked(e.point.lng, e.point.lat);
+                });
+            }  
         });
 	}
 
+    function current_location(longtitude, latitude){
+        map.removeOverlay(current_marker);
+        current_point = new BMap.Point(longtitude, latitude);
+        var label = new BMap.Label( "当前位置" + "<br>" + 
+                                    "经度: " + longtitude.toFixed(6) + "<br>" +
+                                    "纬度: " + latitude.toFixed(6), 
+                                    {offset:new BMap.Size(20,-45)});
+        current_marker = new BMap.Marker(current_point);
+        map.addOverlay(current_marker);
+        current_marker.setLabel(label);
+        if (draw_flag){
+            draw_route(previous_point, current_point)
+        }
+        previous_point = current_point;
+        draw_flag = 1;
+    }
+
+    function pan_to_current(){
+        map.panTo(current_point);
+    }
+
+    function draw_route(point1, point2){
+        var points = [point1, point2];
+        var sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
+        scale: 0.6,//图标缩放大小
+        strokeColor:'#fff',//设置矢量图标的线填充颜色
+        strokeWeight: '2',//设置线宽
+        });
+        var icons = new BMap.IconSequence(sy, '10', '30');
+        var polyline =new BMap.Polyline(points, {
+            enableEditing: false,//是否启用线编辑，默认为false
+            enableClicking: true,//是否响应点击事件，默认为true
+            icons:[icons],
+            strokeWeight:'5',//折线的宽度，以像素为单位
+            strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
+            strokeColor:"red" //折线颜色
+            });
+        map.addOverlay(polyline);
+    }
+    
 	function reset() {
         map.clearOverlays();
         map.centerAndZoom("杭州");
     }
     
     init_map();
-    add_clicked_listener();
+    clicked_listener();
 </script>  
 </body>  
 </html>
