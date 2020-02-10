@@ -70,6 +70,9 @@ MainWidget::MainWidget(QWidget *parent)
     // publish a MainWidget object to m_webchannel
     m_webchannel->registerObject("mainwidget", this);
     m_webview->page()->setWebChannel(m_webchannel);
+
+    ui->auto_lineEdit_longt->setText("120.3364982");
+    ui->auto_lineEdit_lat->setText("30.3137504");
 }
 
 MainWidget::~MainWidget()
@@ -334,6 +337,7 @@ uint8_t* MainWidget::xor_check(uint8_t *data_byte)
  * Return: Void
  * Version: 0.1
  * See: connection_confirm(uint8_t address)
+ *      webview/FishMap.html->current_location()
  * Date: 2020.1.9
 **/
 void MainWidget::serial_rec_data_process()
@@ -892,12 +896,12 @@ void MainWidget::on_log_btn_apply_clicked()
 
 /**
  * Function name: on_auto_btn_add_locs_clicked()
- * Brief: auto_btn_add clicked slot, add longtitude and latitude value into tabelwidget
+ * Brief: auto_btn_add clicked slot, add points to tabwidget and show them in map
  * Author: GJH
  * Paras: None
  * Return: Void
  * Version: 0.1
- * See:
+ * See: webview/FishMap.html->set_destination();
  * Date: 2020.1.13
 **/
 void MainWidget::on_auto_btn_add_locs_clicked()
@@ -919,34 +923,44 @@ void MainWidget::on_auto_btn_add_locs_clicked()
     }
 }
 
+/**
+ * Function name: on_auto_btn_locate_clicked()
+ * Brief: auto_btn_locate clicked slot, show point in map according to lineEdit
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: webview/Fishmap.html->locate()
+ * Date: 2020.2.4
+**/
 void MainWidget::on_auto_btn_locate_clicked()
 {
+    // coor_type: 0->WGS84, 1->BD09
+    uint8_t coor_type = 0;
     if (ui->auto_lineEdit_longt->text().isEmpty() || ui->auto_lineEdit_longt->text().isEmpty()){
         return;
     }
-    QString add_point_cmd = QString("locate(%1, %2);").arg(ui->auto_lineEdit_longt->text())
-            .arg(ui->auto_lineEdit_lat->text());
+    QString add_point_cmd = QString("locate(%1, %2, %3);").arg(ui->auto_lineEdit_longt->text())
+            .arg(ui->auto_lineEdit_lat->text()).arg(coor_type);
     m_webview->page()->runJavaScript(add_point_cmd);
 }
 
 /**
  * Function name: on_auto_btn_clear_clicked()
- * Brief: auto_btn_clear clicked slot, clear locations (longtitude and latitude) in tabelwidget
+ * Brief: auto_btn_clear clicked slot, clear tabwidget and map
  * Author: GJH
  * Paras: None
  * Return: Void
  * Version: 0.1
- * See:
+ * See: webview/Fishmap.html->reset()
  * Date: 2020.1.13
 **/
 void MainWidget::on_auto_btn_clear_clicked()
 {
-    if (ui->auto_tabWidget_locs->item(0, 0)->text() != "-"){
-        // reset map in javascript
-        QString reset_cmd = QString("reset();");
-        m_webview->page()->runJavaScript(reset_cmd);
+    // reset map in javascript
+    QString reset_cmd = QString("reset();");
+    m_webview->page()->runJavaScript(reset_cmd);
         this->init_tabwidget_locs();
-    }
 }
 
 /**
@@ -1142,6 +1156,16 @@ void MainWidget::sleep_ms(uint16_t ms)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
+/**
+ * Function name: init_tabwidget_locs()
+ * Brief: initialize tabwidget with "-" and reset location_count
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.4
+**/
 void MainWidget::init_tabwidget_locs()
 {
     ui->auto_tabWidget_locs->setItem(0, 0, new QTableWidgetItem("-"));
@@ -1155,20 +1179,42 @@ void MainWidget::init_tabwidget_locs()
     location_count = 0;
 }
 
-void MainWidget::map_clicked(QString longtitude, QString latitude){
+/**
+ * Function name: map_clicked(QString longtitude, QString latitude)
+ * Brief: show longtitude and latitude of clicked point in lineEdit
+ * Author: GJH
+ * Paras: (QString) longtitude
+ *        (QString) latitude
+ * Return: Void
+ * Version: 0.1
+ * See: webview/Fishmap.html->clicked_listener()
+ * Date: 2020.2.4
+**/
+void MainWidget::map_clicked(QString longtitude, QString latitude)
+{
     ui->auto_lineEdit_longt->setText(longtitude);
     ui->auto_lineEdit_lat->setText(latitude);
 }
 
+/**
+ * Function name: on_auto_btn_find_me_clicked()
+ * Brief: auto_btn_find_me clicked slot, set map center to current location
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: webview/Fishmap.html->pan_to_current()
+ * Date: 2020.2.4
+**/
 void MainWidget::on_auto_btn_find_me_clicked()
 {
     // for test
-    static float lng = 120;
-    static float lat = 30;
+    static float lng = 120.3364982;
+    static float lat = 30.3137504;
     QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
     m_webview->page()->runJavaScript(current_location_cmd);
-    lng = lng + 0.1;
+    lng = lng + 0.05;
 
-    QString pan_to_current_cmd = QString("pan_to_current();");
-    m_webview->page()->runJavaScript(pan_to_current_cmd);
+//    QString pan_to_current_cmd = QString("pan_to_current();");
+//    m_webview->page()->runJavaScript(pan_to_current_cmd);
 }

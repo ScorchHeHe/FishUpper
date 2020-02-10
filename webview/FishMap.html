@@ -18,69 +18,188 @@
 <body>  
 <div id="container"></div> 
 
-<script type="text/javascript"> 
-    // 百度地图API功能
-    var map;
-    var mainwidget;
-    var tmp_marker;
-    var current_marker;
-    var current_point;
-    var previous_point;
-    var dstn_marker = [];
-    var dstn_marker_label = []
-    var draw_flag = 0;
+<script type="text/javascript">
+    //声明对象
+    var map;                    //地图对象
+    var mainwidget;             //Qt对象
+    var tmp_marker;             //临时定位标记
+    var current_marker;         //当前标记
+    var current_point;          //当前坐标点
+    var previous_point;         //上一坐标点
+    var dstn_marker = [];       //目的地标记列表
+    var dstn_marker_label = []  //目的地标记标签列表
+    var draw_flag = 0;          //画路线图标志位
+    //坐标转换参数定义
+    var x_PI = 3.14159265358979324 * 3000.0 / 180.0;
+    var PI = 3.141592653589793284626;
+    var a = 6378245.0;
+    var ee = 0.00669342162296594323;
+    //测试点坐标 WGS84           BD09
+    // var x = 120.3364982; // 120.34699076257016
+    // var y = 30.3137504;  // 30.31766086092989
 
-    // 初始化地图
+    /**
+     * 函数名: init_map()
+     * 说明: 初始化地图
+     * 作者: GJH
+     * 参数: 无
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考:
+     * 日期: 2020.2.10
+    **/
     function init_map(){
         map = new BMap.Map("container");
         map.centerAndZoom("杭州");
-        // map.addControl(new BMap.NavigationControl());
+        map.addControl(new BMap.NavigationControl());
         map.enableScrollWheelZoom(true);
     }
 
-    // 将GPS坐标转化为百度坐标，并在地图中标记
-    // function translate_and_mark(longtitude, latitude){
-    //     var point = new BMap.Point(longtitude, latitude);
-    // 	   var convertor = new BMap.Convertor();
-    //     var pointArr = [];
-    //     pointArr.push(point);
-
-    //     translate_callback = function (data){
-    //   		if (data.status === BMAP_STATUS_SUCCESS) {
-    //             // 标记当前坐标
-    //             var marker = new BMap.Marker(data.points[0]);
-    //             map.addOverlay(marker);
-    //             map.setZoom(15);
-    //             map.panTo(data.points[0]);                   
-    //   		}
-    // 	}
-    //     convertor.translate(pointArr, 1, 5, translate_callback)
-    // }
-
-    function locate(longtitude, latitude){
-        map.removeOverlay(tmp_marker);
-        var point = new BMap.Point(longtitude, latitude);
-        tmp_marker = new BMap.Marker(point);
-        map.addOverlay(tmp_marker);
-        var label = new BMap.Label("经度: " + longtitude.toFixed(6) + "<br>" +
-                                   "纬度: " + latitude.toFixed(6),{offset:new BMap.Size(20,-35)});
-        tmp_marker.setLabel(label);
-        map.panTo(point);
+    /**
+     * 函数名: bd09_to_wgs84(bd09_lng, bd09_lat)
+     * 说明: BD09坐标转WGS84坐标
+     * 作者: GJH
+     * 参数: bd09_lng: BD09坐标经度, bd09_lat: BD09坐标纬度
+     * 返回值: wgs: WGS坐标经纬度
+     * 版本: 0.1
+     * 参考: bd09_to_gcj02(bd09_lng, bd09_lat); gcj02_to_wgs84(lng, lat);
+     * 日期: 2020.2.10
+    **/
+    function bd09_to_wgs84(bd09_lng, bd09_lat){
+        if (out_of_china(bd09_lng, bd09_lat)) {
+            return [bd09_lng, bd09_lat]
+        }
+        else {
+            var gcj02 = bd09_to_gcj02(bd09_lng, bd09_lat);
+            var wgs84 = gcj02_to_wgs84(gcj02[0], gcj02[1]);
+            return wgs84;
+        }
+    }
+    function out_of_china(lng, lat) {
+        return (lng < 72.004 || lng > 137.8347) || ((lat < 0.8293 || lat > 55.8271) || false);
+    }
+    function bd09_to_gcj02(bd09_lng, bd09_lat){
+        var x = bd09_lng - 0.0065;
+        var y = bd09_lat - 0.006;
+        var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_PI);
+        var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_PI);
+        var gcj02_lng = z * Math.cos(theta);
+        var gcj02_lat = z * Math.sin(theta);
+        return [gcj02_lng, gcj02_lat];
+    }
+    function gcj02_to_wgs84(lng, lat) {
+        var dlat = transformlat(lng - 105.0, lat - 35.0);
+        var dlng = transformlng(lng - 105.0, lat - 35.0);
+        var radlat = lat / 180.0 * PI;
+        var magic = Math.sin(radlat);
+        magic = 1 - ee * magic * magic;
+        var sqrtmagic = Math.sqrt(magic);
+        dlat = (dlat * 180.0) / ((a * (1 - ee)) / (magic * sqrtmagic) * PI);
+        dlng = (dlng * 180.0) / (a / sqrtmagic * Math.cos(radlat) * PI);
+        mglat = lat + dlat;
+        mglng = lng + dlng;
+        return [lng * 2 - mglng, lat * 2 - mglat]
+    }
+    function transformlat(lng, lat) {
+        var ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+        ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+        ret += (20.0 * Math.sin(lat * PI) + 40.0 * Math.sin(lat / 3.0 * PI)) * 2.0 / 3.0;
+        ret += (160.0 * Math.sin(lat / 12.0 * PI) + 320 * Math.sin(lat * PI / 30.0)) * 2.0 / 3.0;
+        return ret
+    }
+    function transformlng(lng, lat) {
+        var ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+        ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+        ret += (20.0 * Math.sin(lng * PI) + 40.0 * Math.sin(lng / 3.0 * PI)) * 2.0 / 3.0;
+        ret += (150.0 * Math.sin(lng / 12.0 * PI) + 300.0 * Math.sin(lng / 30.0 * PI)) * 2.0 / 3.0;
+        return ret
     }
 
+    /**
+     * 函数名: locate(longtitude, latitude, coor_type)
+     * 说明: 定位当前坐标并在地图上标记
+     * 作者: GJH
+     * 参数: longtitude: 经度, latitude: 纬度， coor_type: 坐标类型 0->WGS84, 1->BD09
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考:
+     * 日期: 2020.2.10
+    **/
+    function locate(longtitude, latitude, coor_type){
+        map.removeOverlay(tmp_marker);
+        var point = new BMap.Point(longtitude, latitude);
+        if (coor_type == 1){
+            tmp_marker = new BMap.Marker(point);
+            map.addOverlay(tmp_marker);
+            var wgs84 = bd09_to_wgs84(longtitude, latitude);
+            var label = new BMap.Label( "经度: " + wgs84[0] + "<br>" +
+                                        "纬度: " + wgs84[1],{offset:new BMap.Size(20,-35)});
+            tmp_marker.setLabel(label);
+            map.panTo(point);
+        }
+        else if (coor_type == 0) {
+            map.setZoom(15);
+            var convertor = new BMap.Convertor();
+            var pointArr = [];
+            pointArr.push(point);
+
+            translate_callback = function (data){
+      		    if (data.status == BMAP_STATUS_SUCCESS) {
+                    // 标记当前坐标
+                    tmp_marker = new BMap.Marker(data.points[0]);
+                    map.addOverlay(tmp_marker);
+                    var label = new BMap.Label( "经度: " + longtitude.toFixed(6) + "<br>" +
+                                                "纬度: " + latitude.toFixed(6),{offset:new BMap.Size(20,-35)});
+                    tmp_marker.setLabel(label);
+                    map.panTo(data.points[0]);                   
+      		    }
+            }
+            convertor.translate(pointArr, 1, 5, translate_callback)
+
+        }
+    }
+    /**
+     * 函数名: set_destination(longtitude, latitude, location_count)
+     * 说明: 在地图上标记目的地
+     * 作者: GJH
+     * 参数: longtitude: 经度, latitude: 纬度， location_count: 目的地编号
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考:
+     * 日期: 2020.2.10
+    **/
     function set_destination(longtitude, latitude, location_count){
         map.removeOverlay(tmp_marker);
         var point = new BMap.Point(longtitude, latitude);
-        dstn_marker[location_count] = new BMap.Marker(point);
-        map.addOverlay(dstn_marker[location_count]);
-        dstn_marker_label[location_count] = new BMap.Label
-            ("目的地" + (location_count + 1), {offset:new BMap.Size(20,-15)});
-        dstn_marker[location_count].setLabel(dstn_marker_label[location_count]);
-        dstn_marker[location_count].setTitle("经度: " + longtitude.toFixed(6) + "\n" +
-                                             "纬度: " + latitude.toFixed(6));
-        map.panTo(point);
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(point);
+        translate_callback = function (data){
+      		if (data.status == BMAP_STATUS_SUCCESS) {
+                // 标记当前坐标
+                dstn_marker[location_count] = new BMap.Marker(data.points[0]);
+                map.addOverlay(dstn_marker[location_count]);
+                dstn_marker_label[location_count] = new BMap.Label
+                    ("目的地" + (location_count + 1), {offset:new BMap.Size(20,-15)});
+                dstn_marker[location_count].setLabel(dstn_marker_label[location_count]);
+                dstn_marker[location_count].setTitle(   "经度: " + longtitude.toFixed(6) + "\n" +
+                                                        "纬度: " + latitude.toFixed(6));
+                map.panTo(data.points[0]);                   
+      		}
+        }
+        convertor.translate(pointArr, 1, 5, translate_callback)
     }
 
+    /**
+     * 函数名: delete_marker(location_count)
+     * 说明: 在地图上删除制定目的地
+     * 作者: GJH
+     * 参数: location_count: 编号
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考:
+     * 日期: 2020.2.10
+    **/
     function delete_marker(location_count){
         if (dstn_marker[location_count] != 'undefined'){
             map.removeOverlay(dstn_marker[location_count]);
@@ -94,10 +213,19 @@
         }
     }
 
-    // 鼠标点击拾取经纬度
+    /**
+     * 函数名: clicked_listener()
+     * 说明: 添加鼠标点击监听事件
+     * 作者: GJH
+     * 参数: 无
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考: locate(longtitude, latitude, coor_type)
+     * 日期: 2020.2.10
+    **/
 	function clicked_listener() {
 		map.addEventListener("click", function(e){
-            locate(e.point.lng, e.point.lat);
+            locate(e.point.lng, e.point.lat, 1);
             if (typeof qt != 'undefined'){
                 new QWebChannel(qt.webChannelTransport, function(channel){
                     mainwidget = channel.objects.mainwidget
@@ -105,51 +233,104 @@
                 });
             }  
         });
-	}
-
+    }
+    
+    /**
+     * 函数名: current_location(longtitude, latitude)
+     * 说明: 在地图上标记当前点，并绘制运动轨迹
+     * 作者: GJH
+     * 参数: longtitude: 经度, latitude: 纬度
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考: 
+     * 日期: 2020.2.10
+    **/
     function current_location(longtitude, latitude){
         map.removeOverlay(current_marker);
         current_point = new BMap.Point(longtitude, latitude);
-        var label = new BMap.Label( "当前位置" + "<br>" + 
-                                    "经度: " + longtitude.toFixed(6) + "<br>" +
-                                    "纬度: " + latitude.toFixed(6), 
-                                    {offset:new BMap.Size(20,-45)});
-        current_marker = new BMap.Marker(current_point);
-        map.addOverlay(current_marker);
-        current_marker.setLabel(label);
-        if (draw_flag){
-            draw_route(previous_point, current_point)
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(current_point);
+        translate_callback = function (data){
+      		if (data.status == BMAP_STATUS_SUCCESS) {
+                // 标记当前坐标
+                current_marker = new BMap.Marker(data.points[0]);
+                map.addOverlay(current_marker);
+                var label = new BMap.Label( "当前位置" + "<br>" + 
+                                            "经度: " + longtitude.toFixed(6) + "<br>" +
+                                            "纬度: " + latitude.toFixed(6), 
+                                            {offset:new BMap.Size(20,-45)});
+                current_marker.setLabel(label);
+                if (draw_flag){
+                    map.setZoom(13);
+                    draw_route(previous_point, data.points[0])
+                }
+                map.panTo(data.points[0]);
+                previous_point = data.points[0];
+
+      		}
         }
-        previous_point = current_point;
+        convertor.translate(pointArr, 1, 5, translate_callback)
         draw_flag = 1;
     }
 
+    /**
+     * 函数名: pan_to_current()
+     * 说明: 将地图中心设置为current_point
+     * 作者: GJH
+     * 参数: 无
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考: 
+     * 日期: 2020.2.10
+    **/
     function pan_to_current(){
         map.panTo(current_point);
     }
 
+    /**
+     * 函数名: draw_route(point1, point2)
+     * 说明: 在地图上绘制两点连线
+     * 作者: GJH
+     * 参数: point1: 起点, point2: 终点
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考: 
+     * 日期: 2020.2.10
+    **/   
     function draw_route(point1, point2){
         var points = [point1, point2];
         var sy = new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_OPEN_ARROW, {
-        scale: 0.6,//图标缩放大小
-        strokeColor:'#fff',//设置矢量图标的线填充颜色
-        strokeWeight: '2',//设置线宽
+            scale: 0.6,//图标缩放大小
+            strokeColor:'#fff',//设置矢量图标的线填充颜色
+            strokeWeight: '3',//设置线宽
         });
         var icons = new BMap.IconSequence(sy, '10', '30');
         var polyline =new BMap.Polyline(points, {
             enableEditing: false,//是否启用线编辑，默认为false
             enableClicking: true,//是否响应点击事件，默认为true
             icons:[icons],
-            strokeWeight:'5',//折线的宽度，以像素为单位
+            strokeWeight:'6',//折线的宽度，以像素为单位
             strokeOpacity: 0.8,//折线的透明度，取值范围0 - 1
             strokeColor:"red" //折线颜色
-            });
+        });
         map.addOverlay(polyline);
     }
     
+    /**
+     * 函数名: reset()
+     * 说明: 重置地图
+     * 作者: GJH
+     * 参数: 无
+     * 返回值: 无
+     * 版本: 0.1
+     * 参考: 
+     * 日期: 2020.2.10
+    **/   
 	function reset() {
         map.clearOverlays();
         map.centerAndZoom("杭州");
+        draw_flag = 0;
     }
     
     init_map();
