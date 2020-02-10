@@ -52,8 +52,6 @@ const uint16_t MOTOR_PITCH_STEER = 1500;
 const uint16_t PUMP_POSITION = 200;
 const uint16_t MASS_POSITION = 4000;
 
-#pragma pack(1)
-
 // query data and connection confirm frame
 typedef struct {
     uint8_t head_h;
@@ -172,7 +170,5 @@ typedef struct{
     uint8_t tail;
 } Auto_Frame;
 
-
-#pragma pack(0)
 
 #endif // DATASTRUCT_H
