@@ -2,6 +2,7 @@
 #define MAINWIDGET_H
 
 #include "datastruct.h"
+#include "QJoysticks.h"
 #include <QWidget>
 #include <QString>
 #include <QtSerialPort>
@@ -99,6 +100,8 @@ private slots:
 
     void on_auto_btn_find_me_clicked();
 
+    void on_js_btn_refresh_clicked();
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
@@ -107,6 +110,7 @@ private:
     QFile* logfile;
     QWebEngineView* m_webview;
     QWebChannel* m_webchannel;
+    QJoysticks* m_joystick;
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];

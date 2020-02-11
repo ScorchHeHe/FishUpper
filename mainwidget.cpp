@@ -59,7 +59,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_webview = new QWebEngineView(ui->auto_tab);
     m_webview->setGeometry(QRect(10, 30, 581, 341));
-    m_webview->load(QUrl("file:///home/gjh/Code/FishUpper/webview/FishMap.html"));
+    m_webview->load(QUrl("file:///E:/Code/FishUpper/webview/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
@@ -73,6 +73,14 @@ MainWidget::MainWidget(QWidget *parent)
 
     ui->auto_lineEdit_longt->setText("120.3364982");
     ui->auto_lineEdit_lat->setText("30.3137504");
+
+    m_joystick = QJoysticks::getInstance();
+    m_joystick->setVirtualJoystickRange (1);
+    m_joystick->setVirtualJoystickEnabled (true);
+    QStringList js_names = m_joystick->deviceNames();
+    foreach (QString name, js_names){
+        ui->js_cobx->addItem(name);
+    }
 }
 
 MainWidget::~MainWidget()
@@ -1217,4 +1225,13 @@ void MainWidget::on_auto_btn_find_me_clicked()
 
 //    QString pan_to_current_cmd = QString("pan_to_current();");
 //    m_webview->page()->runJavaScript(pan_to_current_cmd);
+}
+
+void MainWidget::on_js_btn_refresh_clicked()
+{
+    ui->js_cobx->clear();
+    QStringList js_names = m_joystick->deviceNames();
+    foreach (QString name, js_names){
+        ui->js_cobx->addItem(name);
+    }
 }
