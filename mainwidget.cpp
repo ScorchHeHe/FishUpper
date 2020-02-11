@@ -65,22 +65,21 @@ MainWidget::MainWidget(QWidget *parent)
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
     connect(m_timer, SIGNAL(timeout()), this, SLOT(query_data()));
 
-    this->scan_serialport();
-
     // publish a MainWidget object to m_webchannel
     m_webchannel->registerObject("mainwidget", this);
     m_webview->page()->setWebChannel(m_webchannel);
-
     ui->auto_lineEdit_longt->setText("120.3364982");
     ui->auto_lineEdit_lat->setText("30.3137504");
 
     m_joystick = QJoysticks::getInstance();
-    m_joystick->setVirtualJoystickRange (1);
-    m_joystick->setVirtualJoystickEnabled (true);
-    QStringList js_names = m_joystick->deviceNames();
-    foreach (QString name, js_names){
-        ui->js_cobx->addItem(name);
-    }
+    connect(m_joystick, SIGNAL(axisChanged(int, int, qreal)), this, SLOT(joysitck_axis(int, int, qreal)));
+    connect(m_joystick, SIGNAL(buttonChanged(int, int, bool)), this, SLOT(joystick_btn(int, int, bool)));
+
+    local_record_flag = false;
+
+    this->scan_serialport();
+    this->scan_joysticks();
+
 }
 
 MainWidget::~MainWidget()
@@ -89,11 +88,13 @@ MainWidget::~MainWidget()
     delete m_serialport;
     delete m_timer;
     delete m_mutex;
+    delete m_webchannel;
+    delete m_webview;
 }
 
 /**
  * Function name: scan_serialport()
- * Brief: find avaliable serialport and display in serst_cobx_port
+ * Brief: Add avaliable serialports to serst_cobx_port
  * Author: GJH
  * Paras: None
  * Return: Void
@@ -121,6 +122,28 @@ void MainWidget::scan_serialport()
         ui->serst_label_msg->setText("No ports found");
         ui->serst_label_msg->setStyleSheet("color:red");
     }
+}
+
+/**
+ * Function name: scan_joysticks()
+ * Brief: Add avaliable joysticks to js_cobx
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: QJoysticks: https://github.com/alex-spataru/QJoysticks
+ * Date: 2020.2.11
+**/
+void MainWidget::scan_joysticks()
+{
+    ui->js_cobx->clear();
+    m_joystick->setVirtualJoystickEnabled (true);
+    m_joystick->setVirtualJoystickRange (1);
+    QStringList js_names = m_joystick->deviceNames();
+    foreach (QString name, js_names){
+        ui->js_cobx->addItem(name);
+    }
+    joystick_connect_state = false;
 }
 
 /**
@@ -159,7 +182,7 @@ void MainWidget::on_serst_btn_con_clicked()
         ui->serst_cobx_baud->setEnabled(true);
         ui->serst_btn_refresh->setEnabled(true);
         ui->serst_label_msg->setText("Please open port");
-        ui->serst_label_msg->setStyleSheet("color:black");
+        ui->serst_label_msg->setStyleSheet("font:12pt Calibri; color:black");
     }
     // open port
     else {
@@ -176,12 +199,12 @@ void MainWidget::on_serst_btn_con_clicked()
             ui->serst_cobx_baud->setDisabled(true);
             ui->serst_btn_refresh->setDisabled(true);
             ui->serst_label_msg->setText(m_serialport->portName() + " is connected");
-            ui->serst_label_msg->setStyleSheet("color:green");
+            ui->serst_label_msg->setStyleSheet("font:12pt Calibri; color:green");
         }
         // open port failed
         else {
             ui->serst_label_msg->setText("No ports found");
-            ui->serst_label_msg->setStyleSheet("color:red");
+            ui->serst_label_msg->setStyleSheet("font:12pt Calibri; color:red");
         }
     }
 }
@@ -373,31 +396,31 @@ void MainWidget::serial_rec_data_process()
         // front leak
         if ((uint16_t)stm32_data.leak / 100){
             ui->leak_tabel_text_front->setText("Leak");
-            ui->leak_tabel_text_front->setStyleSheet("color:red");
+            ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:red");
         }
         else {
             ui->leak_tabel_text_front->setText("Normal");
-            ui->leak_tabel_text_front->setStyleSheet("color:green");
+            ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:green");
         }
         stm32_data.leak =(uint16_t)stm32_data.leak % 100;
         // mid leak
         if ((uint16_t)stm32_data.leak / 10){
             ui->leak_tabel_text_mid->setText("Leak");
-            ui->leak_tabel_text_mid->setStyleSheet("color:red");
+            ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:red");
         }
         else {
             ui->leak_tabel_text_mid->setText("Normal");
-            ui->leak_tabel_text_mid->setStyleSheet("color:green");
+            ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:green");
         }
         stm32_data.leak =(uint16_t)stm32_data.leak % 10;
         // tail leak
         if ((uint8_t)stm32_data.leak / 1){
             ui->leak_tabel_text_tail->setText("Leak");
-            ui->leak_tabel_text_tail->setStyleSheet("color:red");
+            ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:red");
         }
         else {
             ui->leak_tabel_text_tail->setText("Normal");
-            ui->leak_tabel_text_tail->setStyleSheet("color:green");
+            ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
         }
         // record stm32 data
         if (local_record_flag){
@@ -709,8 +732,7 @@ void MainWidget::on_mtr_btn_load_clicked()
     motor_frame.xor_check = this->xor_check(p_motor_frame)[1];
     motor_frame.tail = FRAME_TAIL;
     serial_write_data(&motor_frame.head_h, motor_frame.len + 2);
-//    sleep_ms(200);
-//    serial_write_data(&motor_frame.head_h, motor_frame.len + 2);
+
     // clear control byte
     motor_para.power_ctrl = 0x00;
     motor_para.status_ctrl = 0x00;
@@ -1136,8 +1158,6 @@ void MainWidget::on_posi_btn_load_clicked()
     posture_frame.xor_check = this->xor_check(p_pose_frame)[1];
     posture_frame.tail = FRAME_TAIL;
     serial_write_data(&posture_frame.head_h, posture_frame.len + 2);
-//    sleep_ms(200);
-//    serial_write_data(&posture_frame.head_h, posture_frame.len + 2);
 }
 
 /**
@@ -1229,9 +1249,90 @@ void MainWidget::on_auto_btn_find_me_clicked()
 
 void MainWidget::on_js_btn_refresh_clicked()
 {
-    ui->js_cobx->clear();
-    QStringList js_names = m_joystick->deviceNames();
-    foreach (QString name, js_names){
-        ui->js_cobx->addItem(name);
+//    ui->js_cobx->clear();
+//    m_joystick->updateInterfaces();
+//    QStringList js_names = m_joystick->deviceNames();
+//    foreach (QString name, js_names){
+//        ui->js_cobx->addItem(name);
+//    }
+    ui->mtr_spinBox_pushMotor->setValue(m_joystick->getAxis(0, 1) * (-500) + 500);
+}
+
+void MainWidget::on_js_btn_connect_clicked()
+{
+    if (ui->js_cobx->currentText() == ""){
+        return;
+    }
+    if (joystick_connect_state){
+        joystick_connect_state = false;
+        ui->js_btn_connect->setText("Connect");
+        ui->js_btn_refresh->setEnabled(true);
+        ui->mtr_checkBox_bbb_ctrl->setChecked(false);
+        ui->groupBox_mtr->setEnabled(true);
+        ui->groupBox_auto->setEnabled(true);
+        ui->ser_groupBox_st->setEnabled(true);
+    }
+    else {
+        if (m_joystick->joystickExists(0)){
+            ui->mtr_checkBox_bbb_ctrl->setChecked(false);
+            ui->groupBox_mtr->setDisabled(true);
+            ui->groupBox_auto->setDisabled(true);
+            ui->ser_groupBox_st->setDisabled(true);
+            ui->js_btn_connect->setText("Disconnect");
+            ui->js_btn_refresh->setDisabled(true);
+            this->on_mtr_btn_load_clicked();
+            joystick_connect_state = true;
+        }
+        else
+            qDebug() << "Joystick doesn't exist!";
+    }
+}
+
+void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
+{
+    if (joystick_connect_state){
+        if (m_joystick->joystickExists(js_index)){
+            switch (axis_index){
+            case PUSH_MORTOR:
+                // axis range [-1, 1] -> pushMotor range [0, 1000];
+                ui->mtr_spinBox_pushMotor->setValue(value * (-500) + 500);
+                break;
+            case HEAD_STEER:
+                // axis range [-1, 1] -> headSteer range [500, 2500];
+                ui->mtr_spinBox_headSteer->setValue(value * 1000 + 1500);
+                break;
+            default:
+                break;
+            }
+            this->on_mtr_btn_load_clicked();
+        }
+    }
+    else {
+        qDebug() << "Joystick connect error!";
+    }
+}
+
+void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
+{
+    bool maintain_flag = false;
+    if (joystick_connect_state){
+        if (m_joystick->joystickExists(js_index)){
+            switch (btn_index){
+            case EXIT_A:
+                this->on_js_btn_connect_clicked();
+                break;
+            case STOP_B:
+                // set motor control parameters to default value
+                ui->mtr_spinBox_pushMotor->setValue(500);
+                ui->mtr_spinBox_headSteer->setValue(1500);
+                break;
+            default:
+                break;
+            }
+            this->on_mtr_btn_load_clicked();
+        }
+    }
+    else {
+        qDebug() << "Joystick connect error!";
     }
 }

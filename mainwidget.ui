@@ -27,11 +27,15 @@
     <family>Calibri</family>
     <pointsize>12</pointsize>
     <weight>50</weight>
+    <italic>false</italic>
     <bold>false</bold>
    </font>
   </property>
   <property name="windowTitle">
    <string>MainWidget</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">font: 12pt &quot;Calibri&quot;;</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -67,7 +71,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="iconSize">
     <size>
@@ -914,6 +918,7 @@
        <family>Calibri</family>
        <pointsize>12</pointsize>
        <weight>50</weight>
+       <italic>false</italic>
        <bold>false</bold>
       </font>
      </property>
@@ -977,6 +982,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -999,6 +1005,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1021,6 +1028,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1036,6 +1044,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1051,6 +1060,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1073,6 +1083,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1102,6 +1113,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1124,6 +1136,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1139,6 +1152,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1154,6 +1168,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1176,6 +1191,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1205,6 +1221,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1227,6 +1244,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1249,6 +1267,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1285,6 +1304,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1300,6 +1320,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1315,6 +1336,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1330,6 +1352,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1369,6 +1392,7 @@
        <family>Calibri</family>
        <pointsize>12</pointsize>
        <weight>50</weight>
+       <italic>false</italic>
        <bold>false</bold>
       </font>
      </property>
@@ -1399,6 +1423,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1414,6 +1439,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1436,6 +1462,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1458,6 +1485,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1490,6 +1518,7 @@
        <family>Calibri</family>
        <pointsize>12</pointsize>
        <weight>50</weight>
+       <italic>false</italic>
        <bold>false</bold>
       </font>
      </property>
@@ -1513,6 +1542,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1528,6 +1558,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1543,6 +1574,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1604,6 +1636,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1619,6 +1652,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1634,6 +1668,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1649,6 +1684,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1664,6 +1700,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1739,6 +1776,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1754,6 +1792,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1769,6 +1808,7 @@
            <family>Calibri</family>
            <pointsize>12</pointsize>
            <weight>50</weight>
+           <italic>false</italic>
            <bold>false</bold>
           </font>
          </property>
@@ -1779,6 +1819,9 @@
        </item>
        <item row="2" column="1">
         <widget class="QLabel" name="leak_tabel_text_mid">
+         <property name="styleSheet">
+          <string notr="true">font: 12pt &quot;Calibri&quot;;</string>
+         </property>
          <property name="text">
           <string>Normal</string>
          </property>
@@ -1786,6 +1829,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QLabel" name="leak_tabel_text_front">
+         <property name="styleSheet">
+          <string notr="true">font: 12pt &quot;Calibri&quot;;</string>
+         </property>
          <property name="text">
           <string>Normal</string>
          </property>
@@ -1793,6 +1839,9 @@
        </item>
        <item row="3" column="1">
         <widget class="QLabel" name="leak_tabel_text_tail">
+         <property name="styleSheet">
+          <string notr="true">font: 12pt &quot;Calibri&quot;;</string>
+         </property>
          <property name="text">
           <string>Normal</string>
          </property>
@@ -1842,6 +1891,10 @@
        </item>
        <item>
         <widget class="QLabel" name="serst_label_msg">
+         <property name="styleSheet">
+          <string notr="true">font: 12pt &quot;Calibri&quot;;
+color: rgb(255, 0, 0);</string>
+         </property>
          <property name="text">
           <string>Nothing connected!</string>
          </property>
@@ -2085,7 +2138,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QGroupBox" name="groupBox_js">
    <property name="geometry">
     <rect>
      <x>610</x>
@@ -2109,43 +2162,6 @@
     <layout class="QGridLayout" name="gridLayout_10">
      <item row="0" column="0">
       <widget class="QComboBox" name="js_cobx"/>
-     </item>
-     <item row="2" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout_13">
-       <item>
-        <spacer name="horizontalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="js_btn_open">
-         <property name="text">
-          <string>Open</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_11">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
      </item>
      <item row="1" column="0">
       <layout class="QHBoxLayout" name="horizontalLayout_14">

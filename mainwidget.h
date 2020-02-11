@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <QWebChannel>
+#include <QFont>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWidget; }
@@ -102,6 +103,12 @@ private slots:
 
     void on_js_btn_refresh_clicked();
 
+    void on_js_btn_connect_clicked();
+
+    void joysitck_axis(int js_index, int axis_index, qreal value);
+
+    void joystick_btn(int js_index, int btn_index, bool is_pressed);
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
@@ -126,10 +133,18 @@ private:
     // auto cruise destination coordinates count
     uint8_t location_count;
 
+    // current joystick index
+    uint8_t current_joystick;
+
     // local record enable flag
-    bool local_record_flag = false;
+    bool local_record_flag;
+
+    // joystick state flag
+    bool joystick_connect_state;
 
     void scan_serialport();
+
+    void scan_joysticks();
 
     uint8_t FrameGet(uint8_t byte);
 

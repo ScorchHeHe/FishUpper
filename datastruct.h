@@ -52,6 +52,16 @@ const uint16_t MOTOR_PITCH_STEER = 1500;
 const uint16_t PUMP_POSITION = 200;
 const uint16_t MASS_POSITION = 4000;
 
+// joystick mapping
+// axis
+const uint8_t PUSH_MORTOR = 1;
+const uint8_t HEAD_STEER = 2;
+// button
+const uint8_t EXIT_A = 0;
+const uint8_t STOP_B = 1;
+const uint8_t X = 2;
+const uint8_t Y = 3;
+
 // query data and connection confirm frame
 typedef struct {
     uint8_t head_h;
