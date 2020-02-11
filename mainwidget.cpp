@@ -148,7 +148,7 @@ void MainWidget::scan_joysticks()
 
 /**
  * Function name: on_serst_btn_refresh_clicked()
- * Brief: serst_btn_refresh click slot, scan avaliable serialport when clicked
+ * Brief: serst_btn_refresh click slot, scan avaliable serialport
  * Author: GJH
  * Paras: None
  * Return: Void
@@ -1237,27 +1237,46 @@ void MainWidget::map_clicked(QString longtitude, QString latitude)
 void MainWidget::on_auto_btn_find_me_clicked()
 {
     // for test
-    static float lng = 120.3364982;
-    static float lat = 30.3137504;
-    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
-    m_webview->page()->runJavaScript(current_location_cmd);
-    lng = lng + 0.05;
+//    static float lng = 120.3364982;
+//    static float lat = 30.3137504;
+//    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
+//    m_webview->page()->runJavaScript(current_location_cmd);
+//    lng = lng + 0.05;
 
-//    QString pan_to_current_cmd = QString("pan_to_current();");
-//    m_webview->page()->runJavaScript(pan_to_current_cmd);
+    QString pan_to_current_cmd = QString("pan_to_current();");
+    m_webview->page()->runJavaScript(pan_to_current_cmd);
 }
 
+/**
+ * Function name: on_js_btn_refresh_clicked()
+ * Brief: js_btn_refresh clicked slot, scan avaliable joystick
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: QJoysticks/Sources/src/QJoysticks.cpp -> updateInterfaces();
+ * Date: 2020.2.11
+**/
 void MainWidget::on_js_btn_refresh_clicked()
 {
-//    ui->js_cobx->clear();
-//    m_joystick->updateInterfaces();
-//    QStringList js_names = m_joystick->deviceNames();
-//    foreach (QString name, js_names){
-//        ui->js_cobx->addItem(name);
-//    }
-    ui->mtr_spinBox_pushMotor->setValue(m_joystick->getAxis(0, 1) * (-500) + 500);
+    ui->js_cobx->clear();
+    m_joystick->updateInterfaces();
+    QStringList js_names = m_joystick->deviceNames();
+    foreach (QString name, js_names){
+        ui->js_cobx->addItem(name);
+    }
 }
 
+/**
+ * Function name: on_js_btn_connect_clicked()
+ * Brief: Enabel joystick
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.11
+**/
 void MainWidget::on_js_btn_connect_clicked()
 {
     if (ui->js_cobx->currentText() == ""){
@@ -1288,6 +1307,16 @@ void MainWidget::on_js_btn_connect_clicked()
     }
 }
 
+/**
+ * Function name: joysitck_axis()
+ * Brief: QJoysticks->axisChanged slot, use joystick to modify motor parameters
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.11
+**/
 void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
 {
     if (joystick_connect_state){
@@ -1312,9 +1341,18 @@ void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
     }
 }
 
+/**
+ * Function name: joystick_btn()
+ * Brief: QJoysticks->buttonChanged slot, use joystick to modify motor parameters
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.11
+**/
 void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
 {
-    bool maintain_flag = false;
     if (joystick_connect_state){
         if (m_joystick->joystickExists(js_index)){
             switch (btn_index){
