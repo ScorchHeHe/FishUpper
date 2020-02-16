@@ -105,7 +105,7 @@ MainWidget::~MainWidget()
 void MainWidget::scan_serialport()
 {
     ui->serst_cobx_port->clear();
-    // find avaliable serialport and display in serst_cobx_port
+    // add avaliable serialports to cobx_port
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()){
         QSerialPort tmp_serial;
         tmp_serial.setPort(info);

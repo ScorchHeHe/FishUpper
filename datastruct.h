@@ -53,10 +53,10 @@ const uint16_t PUMP_POSITION = 200;
 const uint16_t MASS_POSITION = 4000;
 
 // joystick mapping
-// axis
+// axis index
 const uint8_t PUSH_MORTOR = 1;
 const uint8_t HEAD_STEER = 2;
-// button
+// button index
 const uint8_t EXIT_A = 0;
 const uint8_t STOP_B = 1;
 const uint8_t X = 2;
