@@ -28,7 +28,8 @@ MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent),
       ui(new Ui::MainWidget),
       m_serialport(new QSerialPort),
-      m_timer(new QTimer),
+      m_query_timer(new QTimer),
+      m_test_timer(new QTimer),
       m_mutex(new QMutex),
       m_webchannel(new QWebChannel)
 {
@@ -63,7 +64,8 @@ MainWidget::MainWidget(QWidget *parent)
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(query_data()));
+    connect(m_query_timer, SIGNAL(timeout()), this, SLOT(query_data()));
+    connect(m_test_timer, SIGNAL(timeout()), this,SLOT(com_test()));
 
     // publish a MainWidget object to m_webchannel
     m_webchannel->registerObject("mainwidget", this);
@@ -86,7 +88,7 @@ MainWidget::~MainWidget()
 {
     delete ui;
     delete m_serialport;
-    delete m_timer;
+    delete m_query_timer;
     delete m_mutex;
     delete m_webchannel;
     delete m_webview;
@@ -469,6 +471,12 @@ void MainWidget::serial_rec_data_process()
         memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
         this->connection_confirm(rec_data[0]);
         break;
+    case COM_TEST:
+        ++rec_pack_count;
+        ui->comtst_label_text_rec->setText(QString::number(rec_pack_count));
+        loss = (send_pack_count - rec_pack_count) / send_pack_count;
+        ui->comtst_label_text_loss->setText(QString::number(loss, 'f', 2));
+        break;
     default:
         break;
     }
@@ -538,16 +546,23 @@ void MainWidget::serial_write_data(uint8_t* start_byte, uint8_t length)
 **/
 void MainWidget::on_slct_btn_query_clicked()
 {
+    if (!m_serialport->isOpen()){
+        return;
+    }
     // stop query data
-    if (m_timer->isActive()){
-        m_timer->stop();
+    if (m_query_timer->isActive()){
+        m_query_timer->stop();
         ui->slct_lineEdit_text_interval->setEnabled(true);
         ui->slct_btn_query->setText("Query");
     }
     // start query data
     else{
+        // stop m_test_timer
+        if (m_test_timer->isActive()){
+            m_test_timer->stop();
+        }
         // set query interval
-        m_timer->start(ui->slct_lineEdit_text_interval->text().toUInt());
+        m_query_timer->start(ui->slct_lineEdit_text_interval->text().toUInt());
         ui->slct_lineEdit_text_interval->setDisabled(true);
         ui->slct_btn_query->setText("Stop");
     }
@@ -1356,10 +1371,10 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
     if (joystick_connect_state){
         if (m_joystick->joystickExists(js_index)){
             switch (btn_index){
-            case EXIT_A:
+            case EXIT_B:
                 this->on_js_btn_connect_clicked();
                 break;
-            case STOP_B:
+            case RESET_X:
                 // set motor control parameters to default value
                 ui->mtr_spinBox_pushMotor->setValue(500);
                 ui->mtr_spinBox_headSteer->setValue(1500);
@@ -1373,4 +1388,64 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
     else {
         qDebug() << "Joystick connect error!";
     }
+}
+
+/**
+ * Function name: on_comtst_btn_test_clicked()
+ * Brief: comtst_btn_test clicked slot, start com test
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.18
+**/
+void MainWidget::on_comtst_btn_test_clicked()
+{
+    if (!m_serialport->isOpen()){
+        return;
+    }
+    send_pack_count = 0;
+    rec_pack_count = 0;
+    if (m_test_timer->isActive()){
+        m_test_timer->stop();
+        ui->comtst_btn_test->setText("Test");
+    }
+
+    else {
+        if (m_query_timer->isActive()){
+            m_query_timer->stop();
+        }
+        m_test_timer->start(500);
+        ui->comtst_btn_test->setText("Stop");
+    }
+}
+
+/**
+ * Function name: com_test()
+ * Brief: com test slot, send test data pack
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: serial_write_data()
+ * Date: 2020.2.18
+**/
+void MainWidget::com_test()
+{
+    Test_Frame test_frame;
+    test_frame.head_h = FRAME_HEAD_H;
+    test_frame.head_l = FRAME_HEAD_L;
+    test_frame.addr = get_fish_address();
+    test_frame.rw = FRAME_WRITE;
+    test_frame.len = sizeof(test_frame) - 2;
+    test_frame.func_id = COM_TEST;
+    test_frame.count = send_pack_count;
+    uint8_t *p_test_frame;
+    p_test_frame = &test_frame.addr;
+    test_frame.xor_check = this->xor_check(p_test_frame)[1];
+    test_frame.tail = FRAME_TAIL;
+    serial_write_data(&test_frame.head_h, test_frame.len+2);
+    ++send_pack_count;
+    ui->comtst_label_text_send->setText(QString::number(send_pack_count));
 }

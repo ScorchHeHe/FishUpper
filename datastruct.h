@@ -35,6 +35,8 @@ const uint8_t FRAME_FUNC_MOTOR = 0x03;
 const uint8_t FRAME_FUNC_POSTURE = 0x04;
 const uint8_t FRAME_FUNC_AUTO = 0x05;
 const uint8_t FRAME_FUNC_CONNECTION = 0x06;
+const uint8_t COM_TEST = 0x07;
+
 
 // max buffer size
 const uint16_t BUFFER_MAX_SIZE = 256;
@@ -57,9 +59,9 @@ const uint16_t MASS_POSITION = 4000;
 const uint8_t PUSH_MORTOR = 1;
 const uint8_t HEAD_STEER = 2;
 // button index
-const uint8_t EXIT_A = 0;
-const uint8_t STOP_B = 1;
-const uint8_t X = 2;
+const uint8_t A = 0;
+const uint8_t EXIT_B = 1;
+const uint8_t RESET_X = 2;
 const uint8_t Y = 3;
 
 // query data and connection confirm frame
@@ -179,6 +181,19 @@ typedef struct{
     uint8_t xor_check;
     uint8_t tail;
 } Auto_Frame;
+
+// com test frame
+typedef struct{
+    uint8_t head_h;
+    uint8_t head_l;
+    uint8_t addr;
+    uint8_t rw;
+    uint8_t len;
+    uint8_t func_id;
+    uint8_t count;
+    uint8_t xor_check;
+    uint8_t tail;
+} Test_Frame;
 
 
 #endif // DATASTRUCT_H

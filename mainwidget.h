@@ -109,10 +109,13 @@ private slots:
 
     void joystick_btn(int js_index, int btn_index, bool is_pressed);
 
+    void on_comtst_btn_test_clicked();
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
-    QTimer* m_timer;
+    QTimer* m_query_timer;
+    QTimer* m_test_timer;
     QMutex* m_mutex;
     QFile* logfile;
     QWebEngineView* m_webview;
@@ -142,6 +145,11 @@ private:
     // joystick state flag
     bool joystick_connect_state;
 
+    // data package count in com test
+    uint8_t send_pack_count;
+    uint8_t rec_pack_count;
+    double loss;
+
     void scan_serialport();
 
     void scan_joysticks();
@@ -169,6 +177,8 @@ private:
     void sleep_ms(uint16_t ms);
 
     void init_tabwidget_locs();
+
+    void com_test();
 
 };
 #endif // MAINWIDGET_H
