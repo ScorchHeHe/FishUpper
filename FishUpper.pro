@@ -1,6 +1,7 @@
 QT       += core gui
 QT       += serialport
 QT       += webenginewidgets
+QT       += opengl
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -17,14 +18,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    compass.cpp \
     main.cpp \
     mainwidget.cpp
 
 HEADERS += \
+    compass.h \
     datastruct.h \
     mainwidget.h
 
 FORMS += \
+    compass.ui \
     mainwidget.ui
 
 # Default rules for deployment.

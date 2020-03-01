@@ -31,7 +31,8 @@ MainWidget::MainWidget(QWidget *parent)
       m_query_timer(new QTimer),
       m_test_timer(new QTimer),
       m_mutex(new QMutex),
-      m_webchannel(new QWebChannel)
+      m_webchannel(new QWebChannel),
+      m_compass(new Compass)
 {
     ui->setupUi(this);
     ui->leak_tabel_text_front->setStyleSheet("color:green");
@@ -82,6 +83,9 @@ MainWidget::MainWidget(QWidget *parent)
     this->scan_serialport();
     this->scan_joysticks();
 
+    m_compass->setParent(ui->groupBox_compass);
+    m_compass->show();
+
 }
 
 MainWidget::~MainWidget()
@@ -92,6 +96,7 @@ MainWidget::~MainWidget()
     delete m_mutex;
     delete m_webchannel;
     delete m_webview;
+    delete m_compass;
 }
 
 /**
@@ -465,7 +470,11 @@ void MainWidget::serial_rec_data_process()
             local_record_polav6(polav6_data);
             record_file_close();
         }
+
+        // compass display
+        m_compass->update_compass(polav6_data.GPS_head);
         break;
+
     // connection confirm
     case FRAME_FUNC_CONNECTION:
         memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
@@ -1448,4 +1457,11 @@ void MainWidget::com_test()
     serial_write_data(&test_frame.head_h, test_frame.len+2);
     ++send_pack_count;
     ui->comtst_label_text_send->setText(QString::number(send_pack_count));
+}
+
+void MainWidget::on_pushButton_clicked()
+{
+    static float angle = 15;
+    m_compass->update_compass(angle);
+    angle += 15;
 }

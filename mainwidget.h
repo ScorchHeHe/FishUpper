@@ -3,6 +3,7 @@
 
 #include "datastruct.h"
 #include "QJoysticks.h"
+#include "compass.h"
 #include <QWidget>
 #include <QString>
 #include <QtSerialPort>
@@ -111,6 +112,8 @@ private slots:
 
     void on_comtst_btn_test_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
@@ -121,6 +124,7 @@ private:
     QWebEngineView* m_webview;
     QWebChannel* m_webchannel;
     QJoysticks* m_joystick;
+    Compass* m_compass;
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];
@@ -179,6 +183,7 @@ private:
     void init_tabwidget_locs();
 
     void com_test();
+
 
 };
 #endif // MAINWIDGET_H
