@@ -114,11 +114,20 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_fmt_btn_execute_clicked();
+
+    void com_test();
+
+    void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
+
+    void send_mtr_ctrl();
+
+    void joystick_ctrl();
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
     QTimer* m_query_timer;
-    QTimer* m_test_timer;
     QMutex* m_mutex;
     QFile* logfile;
     QWebEngineView* m_webview;
@@ -130,6 +139,22 @@ private:
     uint8_t rec_data[BUFFER_MAX_SIZE];
     uint8_t rec_flag = 0x00;
     uint16_t rec_index = 0x00;
+    qreal push_motor_para;
+    qreal head_steer_para;
+    qreal pitch_steer_para;
+
+    // timerEvent
+//    int m_query_timer;
+    int push_mtr_timer;
+    int head_steer_timer;
+    int pitch_steer_timer;
+    int BMap_timer;
+    int mtr_timer;
+
+    float longtitude;
+    float latitude;
+
+    // int m_joystick_timer;
 
     // current longtitude and latitude
     float curr_lng, curr_lat;
@@ -181,8 +206,6 @@ private:
     void sleep_ms(uint16_t ms);
 
     void init_tabwidget_locs();
-
-    void com_test();
 
 
 };

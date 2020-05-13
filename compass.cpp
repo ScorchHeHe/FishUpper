@@ -100,6 +100,6 @@ void Compass::drawIcon(QPainter &painter)
 
 void Compass::update_compass(float course)
 {
-    m_course = course;
+    m_course = course + 180;
     this->update();
 }

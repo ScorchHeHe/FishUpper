@@ -29,7 +29,6 @@ MainWidget::MainWidget(QWidget *parent)
       ui(new Ui::MainWidget),
       m_serialport(new QSerialPort),
       m_query_timer(new QTimer),
-      m_test_timer(new QTimer),
       m_mutex(new QMutex),
       m_webchannel(new QWebChannel),
       m_compass(new Compass)
@@ -66,7 +65,8 @@ MainWidget::MainWidget(QWidget *parent)
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
     connect(m_query_timer, SIGNAL(timeout()), this, SLOT(query_data()));
-    connect(m_test_timer, SIGNAL(timeout()), this,SLOT(com_test()));
+    connect(m_query_timer, SIGNAL(timeout()), this, SLOT(send_mtr_ctrl()));
+    connect(m_query_timer, SIGNAL(timeout()), this, SLOT(joystick_ctrl()));
 
     // publish a MainWidget object to m_webchannel
     m_webchannel->registerObject("mainwidget", this);
@@ -85,6 +85,17 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_compass->setParent(ui->groupBox_compass);
     m_compass->show();
+
+    push_motor_para = 0;
+    head_steer_para = 0;
+    pitch_steer_para = 0;
+
+//    m_query_timer = 0;
+    push_mtr_timer = 0;
+    head_steer_timer = 0;
+    pitch_steer_timer = 0;
+    BMap_timer = 0;
+    mtr_timer = 0;
 
 }
 
@@ -390,8 +401,8 @@ void MainWidget::serial_rec_data_process()
         memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
         ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 2));
         ui->envir_label_text_temper->setText(QString::number(stm32_data.temper, 'f', 2));
-        ui->envir_label_text_volt->setText(QString::number(stm32_data.volt / 1000, 'f', 3));
-        ui->envir_label_text_curr->setText(QString::number(stm32_data.curr / 1000, 'f', 3));
+        ui->envir_label_text_volt->setText(QString::number(stm32_data.volt * 9.0, 'f', 3));
+        ui->envir_label_text_curr->setText(QString::number(stm32_data.curr, 'f', 3));
         ui->xsens_label_text_roll->setText(QString::number(stm32_data.roll, 'f', 2));
         ui->xsens_label_text_pitch->setText(QString::number(stm32_data.pitch, 'f', 2));
         ui->xsens_label_text_yaw->setText(QString::number(stm32_data.yaw, 'f', 2));
@@ -421,11 +432,11 @@ void MainWidget::serial_rec_data_process()
         }
         stm32_data.leak =(uint16_t)stm32_data.leak % 10;
         // tail leak
-        if ((uint8_t)stm32_data.leak / 1){
+        if ((uint8_t)stm32_data.leak){
             ui->leak_tabel_text_tail->setText("Leak");
             ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:red");
         }
-        else {
+        else if (!(uint8_t)stm32_data.leak){
             ui->leak_tabel_text_tail->setText("Normal");
             ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
         }
@@ -457,12 +468,16 @@ void MainWidget::serial_rec_data_process()
         ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
         ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
         ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));      
+        ui->polav6_label_text_gps_head->setText(QString::number(polav6_data.gps_heading, 'f', 2));
+        ui->polav6_label_text_mag_head->setText(QString::number(polav6_data.mag_heading, 'f', 2));
 
         // show current location in map(javascript)
-        current_location_cmd = QString("current_location(%1, %2);").
-                arg(polav6_data.longtitude / 10000000.0).
-                arg(polav6_data.latitude / 10000000.0);
-        m_webview->page()->runJavaScript(current_location_cmd);
+//        current_location_cmd = QString("current_location(%1, %2);").
+//                arg(polav6_data.longtitude / 10000000.0).
+//                arg(polav6_data.latitude / 10000000.0);
+//        m_webview->page()->runJavaScript(current_location_cmd);
+        longtitude = polav6_data.longtitude / 10000000.0;
+        latitude = polav6_data.latitude / 10000000.0;
 
         // record polav6 data
         if (local_record_flag){
@@ -472,13 +487,13 @@ void MainWidget::serial_rec_data_process()
         }
 
         // compass display
-        m_compass->update_compass(polav6_data.GPS_head);
+        m_compass->update_compass(polav6_data.mag_heading);
         break;
 
     // connection confirm
     case FRAME_FUNC_CONNECTION:
         memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
-        this->connection_confirm(rec_data[0]);
+        // this->connection_confirm(rec_data[0]);
         break;
     case COM_TEST:
         ++rec_pack_count;
@@ -555,23 +570,21 @@ void MainWidget::serial_write_data(uint8_t* start_byte, uint8_t length)
 **/
 void MainWidget::on_slct_btn_query_clicked()
 {
-    if (!m_serialport->isOpen()){
-        return;
-    }
+//    if (!m_serialport->isOpen()){
+//        return;
+//    }
     // stop query data
     if (m_query_timer->isActive()){
         m_query_timer->stop();
+        ui->slct_lineEdit_text_interval->setEnabled(true);
         ui->slct_lineEdit_text_interval->setEnabled(true);
         ui->slct_btn_query->setText("Query");
     }
     // start query data
     else{
-        // stop m_test_timer
-        if (m_test_timer->isActive()){
-            m_test_timer->stop();
-        }
         // set query interval
         m_query_timer->start(ui->slct_lineEdit_text_interval->text().toUInt());
+        ui->slct_lineEdit_text_interval->setDisabled(true);
         ui->slct_lineEdit_text_interval->setDisabled(true);
         ui->slct_btn_query->setText("Stop");
     }
@@ -648,11 +661,11 @@ void MainWidget::on_mtr_horSldr_pushMotor_valueChanged(int value)
 }
 void MainWidget::on_mtr_spinBox_headSteer_valueChanged(int arg1)
 {
-    ui->mtr_horSldr_headSteer->setValue(arg1);
+    ui->mtr_horSldr_headSteer->setValue(3000 - arg1);
 }
 void MainWidget::on_mtr_horSldr_headSteer_valueChanged(int value)
 {
-    ui->mtr_spinBox_headSteer->setValue(value);
+    ui->mtr_spinBox_headSteer->setValue(3000 - value);
 }
 void MainWidget::on_mtr_spinBox_pitchSteer_valueChanged(int arg1)
 {
@@ -711,12 +724,22 @@ void MainWidget::on_mtr_btn_default_clicked()
 void MainWidget::on_mtr_btn_load_clicked()
 {
     // send motor ctrl parameters
+    if (!ui->mtr_checkBox_bbb_ctrl->isChecked() && !mtr_timer)
+        mtr_timer = startTimer(500);
+    if (ui->mtr_checkBox_bbb_ctrl->isChecked() && mtr_timer)
+        mtr_timer = 0;
+
+    this->send_mtr_ctrl();
+}
+
+void MainWidget::send_mtr_ctrl()
+{
     Motor_Para_Package motor_para;
     Motor_Frame motor_frame;
     motor_para.push_motor = ui->mtr_spinBox_pushMotor->value();
-    motor_para.head_steer = ui->mtr_spinBox_headSteer->value();
-    motor_para.pitch_steer = ui->mtr_spinBox_pitchSteer->value();
-    motor_para.status_ctrl = 0x00;
+    motor_para.head_steer = ui->mtr_spinBox_pitchSteer->value();
+    motor_para.pitch_steer = ui->mtr_spinBox_headSteer->value();
+    motor_para.status_ctrl = 0x01;
     if (ui->mtr_checkBox_bbb_ctrl->isChecked()){
         motor_para.status_ctrl += 10;
     }
@@ -742,13 +765,13 @@ void MainWidget::on_mtr_btn_load_clicked()
     if (ui->pwr_checkBox_bbb->isChecked()){
         motor_para.power_ctrl += 1;
     }
-    motor_para.reserved = 0;
+    motor_para.reserved = 10;
 
     motor_frame.head_h = FRAME_HEAD_H;
     motor_frame.head_l = FRAME_HEAD_L;
     motor_frame.addr = get_fish_address();
     motor_frame.rw = FRAME_WRITE;
-    motor_frame.len = sizeof(motor_frame) - 2;
+    motor_frame.len = sizeof(motor_para) + 6;
     motor_frame.func_id = FRAME_FUNC_MOTOR;
     motor_frame.motor_para = motor_para;
     uint8_t *p_motor_frame;
@@ -756,6 +779,11 @@ void MainWidget::on_mtr_btn_load_clicked()
     motor_frame.xor_check = this->xor_check(p_motor_frame)[1];
     motor_frame.tail = FRAME_TAIL;
     serial_write_data(&motor_frame.head_h, motor_frame.len + 2);
+
+//结构体未对齐用以下发送方式
+//    serial_write_data(&motor_frame.head_h, 6);
+//    m_serialport->write((char*)&motor_frame.motor_para, sizeof(motor_para));
+//    serial_write_data(&motor_frame.xor_check, 2);
 
     // clear control byte
     motor_para.power_ctrl = 0x00;
@@ -924,7 +952,8 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
               "V Sky: " << polav6_data.v_sky << "   " << "Omg_x: " << polav6_data.omg_x << "   " <<
               "Omg_y: " << polav6_data.omg_y << "   " << "Omg_z: " << polav6_data.omg_z << "   " <<
               "Roll: " << polav6_data.roll << "   " << "Pitch: " << polav6_data.pitch << "   " <<
-              "yaw: " << polav6_data.yaw << endl;
+              "yaw: " << polav6_data.yaw << "   " << "GPS_heading" << polav6_data.gps_heading << "   "<<
+              "Mag_heading" << polav6_data.mag_heading << endl;
 }
 
 /**
@@ -1095,7 +1124,7 @@ void MainWidget::on_auto_btn_execute_clicked()
     auto_frame.head_l = FRAME_HEAD_L;
     auto_frame.addr = get_fish_address();
     auto_frame.rw = FRAME_WRITE;
-    auto_frame.len = sizeof(auto_frame) - 2;
+    auto_frame.len = sizeof(auto_para) + 6;
     auto_frame.func_id = FRAME_FUNC_AUTO;
     auto_frame.auto_para = auto_para;
     uint8_t *p_auto_frame;
@@ -1103,8 +1132,11 @@ void MainWidget::on_auto_btn_execute_clicked()
     auto_frame.xor_check = this->xor_check(p_auto_frame)[1];
     auto_frame.tail = FRAME_TAIL;
     serial_write_data(&auto_frame.head_h, auto_frame.len + 2);
-//    sleep_ms(200);
-//    serial_write_data(&auto_frame.head_h, auto_frame.len + 2);
+//结构体未对齐用以下发送方式
+//    serial_write_data(&auto_frame.head_h, 6);
+//    m_serialport->write((char*)&auto_frame.auto_para, sizeof(auto_para));
+//    serial_write_data(&auto_frame.xor_check, 2);
+
     this->on_auto_btn_clear_clicked();
 
     QString reset_cmd = QString("reset();");
@@ -1166,15 +1198,15 @@ void MainWidget::on_posi_btn_load_clicked()
 
     posture_para.mass_position = ui->posi_spinBox_massPosi->value();
     posture_para.pump_position = ui->posi_spinBox_pumpPosi->value();
-    posture_para.reserved_1 = 0;
-    posture_para.reserved_2 = 0;
-    posture_para.reserved_3 = 0;
+    posture_para.reserved_1 = 1;
+    posture_para.reserved_2 = 2;
+    posture_para.reserved_3 = 3;
 
     posture_frame.head_h = FRAME_HEAD_H;
     posture_frame.head_l = FRAME_HEAD_L;
     posture_frame.addr = get_fish_address();
     posture_frame.rw = FRAME_WRITE;
-    posture_frame.len = sizeof(posture_frame) - 2;
+    posture_frame.len = sizeof(posture_para) + 6;
     posture_frame.func_id = FRAME_FUNC_POSTURE;
     posture_frame.posture_para = posture_para;
     uint8_t *p_pose_frame;
@@ -1182,6 +1214,11 @@ void MainWidget::on_posi_btn_load_clicked()
     posture_frame.xor_check = this->xor_check(p_pose_frame)[1];
     posture_frame.tail = FRAME_TAIL;
     serial_write_data(&posture_frame.head_h, posture_frame.len + 2);
+
+//结构体未对齐用以下发送方式
+//    serial_write_data(&posture_frame.head_h, 6);
+//    m_serialport->write((char*)&posture_frame.posture_para, sizeof(posture_para));
+//    serial_write_data(&posture_frame.xor_check, 2);
 }
 
 /**
@@ -1266,6 +1303,8 @@ void MainWidget::on_auto_btn_find_me_clicked()
 //    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
 //    m_webview->page()->runJavaScript(current_location_cmd);
 //    lng = lng + 0.05;
+//    if(!BMap_timer)
+//        BMap_timer = startTimer(5000);
 
     QString pan_to_current_cmd = QString("pan_to_current();");
     m_webview->page()->runJavaScript(pan_to_current_cmd);
@@ -1311,20 +1350,31 @@ void MainWidget::on_js_btn_connect_clicked()
         ui->js_btn_connect->setText("Connect");
         ui->js_btn_refresh->setEnabled(true);
         ui->mtr_checkBox_bbb_ctrl->setChecked(false);
-        ui->groupBox_mtr->setEnabled(true);
-        ui->groupBox_auto->setEnabled(true);
-        ui->ser_groupBox_st->setEnabled(true);
+
+        if (push_mtr_timer)
+            push_mtr_timer = 0;
+        if (pitch_steer_timer)
+            pitch_steer_timer = 0;
+        if (head_steer_timer)
+            head_steer_timer = 0;
+        if (mtr_timer)
+            mtr_timer = 0;
     }
     else {
         if (m_joystick->joystickExists(0)){
             ui->mtr_checkBox_bbb_ctrl->setChecked(false);
-            ui->groupBox_mtr->setDisabled(true);
-            ui->groupBox_auto->setDisabled(true);
-            ui->ser_groupBox_st->setDisabled(true);
             ui->js_btn_connect->setText("Disconnect");
             ui->js_btn_refresh->setDisabled(true);
-            this->on_mtr_btn_load_clicked();
             joystick_connect_state = true;
+
+            if (!push_mtr_timer)
+                push_mtr_timer = startTimer(100);
+            if (!pitch_steer_timer)
+                pitch_steer_timer = startTimer(100);
+            if (!head_steer_timer)
+                head_steer_timer = startTimer(100);
+            if (!mtr_timer)
+                mtr_timer = startTimer(500);
         }
         else
             qDebug() << "Joystick doesn't exist!";
@@ -1347,17 +1397,23 @@ void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
         if (m_joystick->joystickExists(js_index)){
             switch (axis_index){
             case PUSH_MORTOR:
-                // axis range [-1, 1] -> pushMotor range [0, 1000];
-                ui->mtr_spinBox_pushMotor->setValue(value * (-500) + 500);
+                push_motor_para = value;
+//                if (!push_mtr_timer)
+//                    push_mtr_timer = startTimer(10);
                 break;
             case HEAD_STEER:
-                // axis range [-1, 1] -> headSteer range [500, 2500];
-                ui->mtr_spinBox_headSteer->setValue(value * 1000 + 1500);
+                head_steer_para = value;
+//                if (!head_steer_timer)
+//                    head_steer_timer = startTimer(10);
+                break;
+            case PITCH_STEER:
+                pitch_steer_para = value;
+//                if (!pitch_steer_timer)
+//                    pitch_steer_timer = startTimer(10);
                 break;
             default:
                 break;
             }
-            this->on_mtr_btn_load_clicked();
         }
     }
     else {
@@ -1377,6 +1433,7 @@ void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
 **/
 void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
 {
+    int para = ui->mtr_spinBox_pushMotor->text().toUInt();
     if (joystick_connect_state){
         if (m_joystick->joystickExists(js_index)){
             switch (btn_index){
@@ -1387,11 +1444,53 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
                 // set motor control parameters to default value
                 ui->mtr_spinBox_pushMotor->setValue(500);
                 ui->mtr_spinBox_headSteer->setValue(1500);
+                ui->mtr_spinBox_pitchSteer->setValue(1500);
+                break;
+            case SHIFT_Y:
+                if (ui->mtr_spinBox_pushMotor->value() == 500) {
+                    if (ui->mtr_checkBox_reverse->isChecked()) {
+                        ui->mtr_checkBox_reverse->setChecked(false);
+                    }
+                    else {
+                        ui->mtr_checkBox_reverse->setChecked(true);
+                    }
+                }
+                break;
+            case LB:
+//                if(!mtr_timer)
+//                    mtr_timer = startTimer(500);
+                if (para >= 550)
+                    para -= 25;
+                else if (para > 500)
+                    para = 500;
+                else if (para >= 50 && para < 500)
+                    para -= 25;
+                else if (para < 50)
+                    para = 0;
+                else if (para == 500 && ui->mtr_checkBox_reverse->isChecked())
+                    para -= 25;
+                ui->mtr_spinBox_pushMotor->setValue(para);
+                break;
+            case RB:
+//                if(!mtr_timer)
+//                    mtr_timer = startTimer(500);
+                if (para >= 950)
+                    para = 1000;
+                else if (para > 500)
+                    para += 25;
+                else if (para >= 450 && para < 500)
+                    para = 500;
+                else if (para < 450)
+                    para += 25;
+                else if (para == 500 && !ui->mtr_checkBox_reverse->isChecked())
+                    para += 25;
+
+                ui->mtr_spinBox_pushMotor->setValue(para);
+
                 break;
             default:
                 break;
             }
-            this->on_mtr_btn_load_clicked();
         }
     }
     else {
@@ -1411,23 +1510,23 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
 **/
 void MainWidget::on_comtst_btn_test_clicked()
 {
-    if (!m_serialport->isOpen()){
-        return;
-    }
-    send_pack_count = 0;
-    rec_pack_count = 0;
-    if (m_test_timer->isActive()){
-        m_test_timer->stop();
-        ui->comtst_btn_test->setText("Test");
-    }
+//    if (!m_serialport->isOpen()){
+//        return;
+//    }
+//    send_pack_count = 0;
+//    rec_pack_count = 0;
+//    if (m_test_timer->isActive()){
+//        m_test_timer->stop();
+//        ui->comtst_btn_test->setText("Test");
+//    }
 
-    else {
-        if (m_query_timer->isActive()){
-            m_query_timer->stop();
-        }
-        m_test_timer->start(500);
-        ui->comtst_btn_test->setText("Stop");
-    }
+//    else {
+//        if (m_query_timer->isActive()){
+//            m_query_timer->stop();
+//        }
+//        m_test_timer->start(500);
+//        ui->comtst_btn_test->setText("Stop");
+//    }
 }
 
 /**
@@ -1464,4 +1563,119 @@ void MainWidget::on_pushButton_clicked()
     static float angle = 15;
     m_compass->update_compass(angle);
     angle += 15;
+}
+
+/**
+ * Function name: on_fmt_btn_execute_clicked()
+ * Brief: fmt_btn_execute clicked slot, start formation
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: on_mtr_btn_load_clicked()
+ * Date: 2020.5.11
+**/
+void MainWidget::on_fmt_btn_execute_clicked()
+{
+    Formation_Para_Package formation_para;
+    Formation_Frame formation_frame;
+
+    formation_para.status_ctrl = 0;
+    if (ui->fmt_cmbx_plan->currentText() == "Plan0") {
+        formation_para.plan = 0;
+    }
+    if (ui->fmt_cmbx_plan->currentText() == "Plan1") {
+        formation_para.plan = 1;
+    }
+    if (ui->fmt_cmbx_plan->currentText() == "Plan2") {
+        formation_para.plan = 2;
+    }
+    formation_para.distance = ui->fmt_lineEdit_text_distance->text().toFloat();
+    formation_para.speed = ui->fmt_lineEdit_text_speed->text().toFloat();
+    formation_para.depth = ui->fmt_lineEdit_text_depth->text().toFloat();
+    formation_para.heading = ui->fmt_lineEdit_text_heading->text().toFloat();
+    formation_para.time = ui->fmt_lineEdit_text_time->text().toFloat();
+
+    formation_frame.head_h = FRAME_HEAD_H;
+    formation_frame.head_l = FRAME_HEAD_L;
+    formation_frame.addr = get_fish_address();
+    formation_frame.rw = FRAME_WRITE;
+    formation_frame.len = sizeof(formation_para) + 6;
+    formation_frame.func_id = FRAME_FUNC_FORMATION;
+    formation_frame.formation_para = formation_para;
+    uint8_t *p_formation_frame;
+    p_formation_frame = &formation_frame.addr;
+    formation_frame.xor_check = this->xor_check(p_formation_frame)[1];
+    formation_frame.tail = FRAME_TAIL;
+    serial_write_data(&formation_frame.head_h, formation_frame.len + 2);
+//结构体未对齐用以下发送方式
+//    serial_write_data(&formation_frame.head_h, 6);
+//    m_serialport->write((char*)&formation_frame.formation_para, sizeof(formation_para));
+//    serial_write_data(&formation_frame.xor_check, 2);
+
+     ui->mtr_checkBox_bbb_ctrl->setChecked(true);
+     this->on_mtr_btn_load_clicked();
+}
+
+/**
+ * Function name: timerEvent()
+ * Brief: timer management (m_query_timer, push_mtr_timer, head_steer_timer, pitch_steer_timer)
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.5.11
+**/
+void MainWidget::timerEvent(QTimerEvent *event)
+{
+//    if (event->timerId() == mtr_timer) {
+//        this->send_mtr_ctrl();
+//    }
+//    else if (event->timerId() == m_query_timer) {
+//        this->query_data();
+//    }
+
+//    if (event->timerId() == m_joystick_timer) {
+//        this->on_mtr_btn_load_clicked();
+//    }
+//    // push motor ctrl
+//    else if (event->timerId() == push_mtr_timer) {
+//        if (ui->mtr_spinBox_pushMotor->value() >= 500 && !ui->mtr_checkBox_reverse->isChecked()) {
+//            ui->mtr_spinBox_pushMotor->setRange(500, 1000);
+//            ui->mtr_spinBox_pushMotor->setValue(ui->mtr_spinBox_pushMotor->value() - push_motor_para * 10);
+//        }
+//        if (ui->mtr_spinBox_pushMotor->value() <= 500 && ui->mtr_checkBox_reverse->isChecked()) {
+//            ui->mtr_spinBox_pushMotor->setRange(0, 500);
+//            ui->mtr_spinBox_pushMotor->setValue(ui->mtr_spinBox_pushMotor->value() - push_motor_para * 10);
+
+//        }
+//    }
+//    // steer ctrl
+//    else if (event->timerId() == head_steer_timer) {
+//        ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 10);
+//    }
+//    else if (event->timerId() == pitch_steer_timer) {
+//        ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 10);
+//    }
+//    if (event->timerId() == BMap_timer) {
+//        QString current_location_cmd;
+//        current_location_cmd = QString("current_location(%1, %2);").arg(longtitude).arg(latitude);
+//        m_webview->page()->runJavaScript(current_location_cmd);
+//    }
+}
+
+void MainWidget::joystick_ctrl()
+{
+    if (ui->mtr_spinBox_pushMotor->value() >= 500 && !ui->mtr_checkBox_reverse->isChecked()) {
+        ui->mtr_spinBox_pushMotor->setRange(500, 1000);
+        ui->mtr_spinBox_pushMotor->setValue(ui->mtr_spinBox_pushMotor->value() - push_motor_para * 10);
+    }
+    if (ui->mtr_spinBox_pushMotor->value() <= 500 && ui->mtr_checkBox_reverse->isChecked()) {
+        ui->mtr_spinBox_pushMotor->setRange(0, 500);
+        ui->mtr_spinBox_pushMotor->setValue(ui->mtr_spinBox_pushMotor->value() - push_motor_para * 10);
+    }
+    ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 20);
+    ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 20);
+
 }
