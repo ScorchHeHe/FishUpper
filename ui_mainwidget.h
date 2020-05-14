@@ -68,23 +68,24 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QVBoxLayout *verticalLayout_4;
     QLabel *mtr_label_pushMotor;
-    QLabel *mtr_label_headSteer;
     QLabel *mtr_label_pitchSteer;
+    QLabel *mtr_label_headSteer;
     QSpacerItem *horizontalSpacer_13;
     QVBoxLayout *verticalLayout_5;
     QSpinBox *mtr_spinBox_pushMotor;
-    QSpinBox *mtr_spinBox_headSteer;
     QSpinBox *mtr_spinBox_pitchSteer;
+    QSpinBox *mtr_spinBox_headSteer;
     QSpacerItem *horizontalSpacer_14;
     QVBoxLayout *verticalLayout_6;
     QSlider *mtr_horSldr_pushMotor;
-    QSlider *mtr_horSldr_headSteer;
     QSlider *mtr_horSldr_pitchSteer;
+    QSlider *mtr_horSldr_headSteer;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_4;
     QCheckBox *mtr_checkBox_bbb_ctrl;
+    QCheckBox *mtr_checkBox_reverse;
+    QSpacerItem *horizontalSpacer_10;
     QPushButton *mtr_btn_close_all;
-    QPushButton *mtr_btn_default;
     QPushButton *mtr_btn_load;
     QWidget *horizontalLayoutWidget_4;
     QHBoxLayout *horizontalLayout_6;
@@ -103,10 +104,24 @@ public:
     QHBoxLayout *horizontalLayout_7;
     QSpacerItem *horizontalSpacer_7;
     QPushButton *posi_btn_reset;
-    QPushButton *posi_btn_default;
     QPushButton *posi_btn_load;
     QFrame *line;
     QGroupBox *groupBox_fmt;
+    QPushButton *fmt_btn_execute;
+    QWidget *gridLayoutWidget_10;
+    QGridLayout *gridLayout_11;
+    QLabel *fmt_label_time;
+    QLabel *fmt_label_heading;
+    QLabel *fmt_label_distance;
+    QLabel *fmt_label_plan;
+    QLabel *fmt_label_depth;
+    QLabel *fmt_label_speed;
+    QComboBox *fmt_cmbx_plan;
+    QLineEdit *fmt_lineEdit_text_distance;
+    QLineEdit *fmt_lineEdit_text_speed;
+    QLineEdit *fmt_lineEdit_text_depth;
+    QLineEdit *fmt_lineEdit_text_heading;
+    QLineEdit *fmt_lineEdit_text_time;
     QGroupBox *groupBox_power;
     QWidget *gridLayoutWidget_8;
     QGridLayout *gridLayout_8;
@@ -123,11 +138,14 @@ public:
     QLabel *comtst_label_text_loss;
     QLabel *comtst_label_loss;
     QLabel *comtst_label_rec;
-    QLabel *comtst_label_sended;
     QLabel *comtst_label_text_rec;
     QLabel *comtst_label_text_send;
+    QLabel *comtst_label_sended;
     QPushButton *comtst_btn_test;
     QGroupBox *groupBox_gldr;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout_11;
+    QLineEdit *lineEdit;
     QPushButton *pushButton;
     QGroupBox *groupBox_compass;
     QWidget *data_tab;
@@ -136,42 +154,46 @@ public:
     QLabel *label_text_monitor_hight;
     QWidget *gridLayoutWidget_5;
     QGridLayout *gridLayout_5;
+    QLabel *polav6_label_text_pitch;
     QLabel *polav6_label_text_acc_y;
-    QLabel *polav6_label_text_head;
-    QLabel *polav6_label_height;
+    QLabel *polav6_label_omg_y;
+    QLabel *polav6_label_v_east;
+    QLabel *polav6_label_text_height;
     QLabel *polav6_label_text_acc_x;
+    QLabel *polav6_label_text_v_east;
+    QLabel *polav6_label_pitch;
     QLabel *polav6_label_v_sky;
+    QLabel *polav6_label_omg_X;
+    QLabel *polav6_label_text_yaw;
+    QLabel *polav6_label_text_omg_y;
+    QLabel *polav6_label_text_omg_x;
+    QLabel *polav6_label_head;
+    QLabel *polav6_label_text_head;
+    QLabel *polav6_label_text_gps_v;
+    QLabel *polav6_label_v_north;
+    QLabel *polav6_label_text_lat;
+    QLabel *polav6_label_acc_x;
+    QLabel *polav6_label_text_long;
+    QLabel *polav6_label_text_navi_tim;
+    QLabel *polav6_label_omg_z;
+    QLabel *polav6_label_text_omg_z;
+    QLabel *polav6_label_yaw;
+    QLabel *polav6_label_text_roll;
+    QLabel *polav6_label_height;
+    QLabel *polav6_label_text_v_north;
+    QLabel *polav6_label_gps_v;
+    QLabel *polav6_label_navi_tim;
     QLabel *polav6_label_text_v_sky;
     QLabel *polav6_label_long;
-    QLabel *polav6_label_roll;
-    QLabel *polav6_label_omg_X;
-    QLabel *polav6_label_text_height;
-    QLabel *polav6_label_gps_v;
-    QLabel *polav6_label_text_omg_x;
-    QLabel *polav6_label_text_lat;
-    QLabel *polav6_label_yaw;
-    QLabel *polav6_label_text_gps_v;
-    QLabel *polav6_label_lat;
-    QLabel *polav6_label_omg_z;
-    QLabel *polav6_label_acc_z;
-    QLabel *polav6_label_text_v_north;
-    QLabel *polav6_label_head;
-    QLabel *polav6_label_text_v_east;
-    QLabel *polav6_label_text_omg_z;
-    QLabel *polav6_label_omg_y;
-    QLabel *polav6_label_text_yaw;
-    QLabel *polav6_label_acc_x;
-    QLabel *polav6_label_text_omg_y;
-    QLabel *polav6_label_v_north;
-    QLabel *polav6_label_text_pitch;
-    QLabel *polav6_label_text_long;
-    QLabel *polav6_label_text_roll;
-    QLabel *polav6_label_pitch;
     QLabel *polav6_label_acc_y;
-    QLabel *polav6_label_v_east;
-    QLabel *polav6_label_navi_tim;
+    QLabel *polav6_label_roll;
+    QLabel *polav6_label_lat;
+    QLabel *polav6_label_acc_z;
     QLabel *polav6_label_text_acc_z;
-    QLabel *polav6_label_text_navi_tim;
+    QLabel *polav6_label_gps_head;
+    QLabel *polav6_label_mag_head;
+    QLabel *polav6_label_text_gps_head;
+    QLabel *polav6_label_text_mag_head;
     QGroupBox *groupBox_environment;
     QWidget *gridLayoutWidget;
     QGridLayout *gridLayout;
@@ -232,10 +254,10 @@ public:
     QGroupBox *slct_groupBox;
     QWidget *gridLayoutWidget_6;
     QGridLayout *gridLayout_7;
-    QPushButton *slct_btn_query;
+    QPushButton *slct_btn_apply;
     QComboBox *slct_cmbx_fish;
-    QLabel *slct_label_interval;
-    QLineEdit *slct_lineEdit_text_interval;
+    QLabel *slct_label_current_fish;
+    QLabel *comtst_label_text_current_fish;
     QGroupBox *groupBox_log;
     QWidget *verticalLayoutWidget_2;
     QVBoxLayout *verticalLayout_7;
@@ -427,7 +449,7 @@ public:
         groupBox_mtr->setGeometry(QRect(200, 10, 391, 311));
         horizontalLayoutWidget_3 = new QWidget(groupBox_mtr);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(10, 30, 371, 101));
+        horizontalLayoutWidget_3->setGeometry(QRect(10, 30, 371, 104));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -439,15 +461,15 @@ public:
 
         verticalLayout_4->addWidget(mtr_label_pushMotor);
 
-        mtr_label_headSteer = new QLabel(horizontalLayoutWidget_3);
-        mtr_label_headSteer->setObjectName(QString::fromUtf8("mtr_label_headSteer"));
-
-        verticalLayout_4->addWidget(mtr_label_headSteer);
-
         mtr_label_pitchSteer = new QLabel(horizontalLayoutWidget_3);
         mtr_label_pitchSteer->setObjectName(QString::fromUtf8("mtr_label_pitchSteer"));
 
         verticalLayout_4->addWidget(mtr_label_pitchSteer);
+
+        mtr_label_headSteer = new QLabel(horizontalLayoutWidget_3);
+        mtr_label_headSteer->setObjectName(QString::fromUtf8("mtr_label_headSteer"));
+
+        verticalLayout_4->addWidget(mtr_label_headSteer);
 
 
         horizontalLayout_3->addLayout(verticalLayout_4);
@@ -466,23 +488,23 @@ public:
 
         verticalLayout_5->addWidget(mtr_spinBox_pushMotor);
 
-        mtr_spinBox_headSteer = new QSpinBox(horizontalLayoutWidget_3);
-        mtr_spinBox_headSteer->setObjectName(QString::fromUtf8("mtr_spinBox_headSteer"));
-        mtr_spinBox_headSteer->setMinimum(500);
-        mtr_spinBox_headSteer->setMaximum(2500);
-        mtr_spinBox_headSteer->setSingleStep(10);
-        mtr_spinBox_headSteer->setValue(1500);
-
-        verticalLayout_5->addWidget(mtr_spinBox_headSteer);
-
         mtr_spinBox_pitchSteer = new QSpinBox(horizontalLayoutWidget_3);
         mtr_spinBox_pitchSteer->setObjectName(QString::fromUtf8("mtr_spinBox_pitchSteer"));
-        mtr_spinBox_pitchSteer->setMinimum(500);
-        mtr_spinBox_pitchSteer->setMaximum(2500);
+        mtr_spinBox_pitchSteer->setMinimum(1000);
+        mtr_spinBox_pitchSteer->setMaximum(2000);
         mtr_spinBox_pitchSteer->setSingleStep(10);
         mtr_spinBox_pitchSteer->setValue(1500);
 
         verticalLayout_5->addWidget(mtr_spinBox_pitchSteer);
+
+        mtr_spinBox_headSteer = new QSpinBox(horizontalLayoutWidget_3);
+        mtr_spinBox_headSteer->setObjectName(QString::fromUtf8("mtr_spinBox_headSteer"));
+        mtr_spinBox_headSteer->setMinimum(1000);
+        mtr_spinBox_headSteer->setMaximum(2000);
+        mtr_spinBox_headSteer->setSingleStep(10);
+        mtr_spinBox_headSteer->setValue(1500);
+
+        verticalLayout_5->addWidget(mtr_spinBox_headSteer);
 
 
         horizontalLayout_3->addLayout(verticalLayout_5);
@@ -495,34 +517,37 @@ public:
         verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
         mtr_horSldr_pushMotor = new QSlider(horizontalLayoutWidget_3);
         mtr_horSldr_pushMotor->setObjectName(QString::fromUtf8("mtr_horSldr_pushMotor"));
+        mtr_horSldr_pushMotor->setMinimum(0);
         mtr_horSldr_pushMotor->setMaximum(1000);
         mtr_horSldr_pushMotor->setSingleStep(10);
         mtr_horSldr_pushMotor->setValue(500);
         mtr_horSldr_pushMotor->setOrientation(Qt::Horizontal);
+        mtr_horSldr_pushMotor->setInvertedAppearance(false);
+        mtr_horSldr_pushMotor->setInvertedControls(false);
 
         verticalLayout_6->addWidget(mtr_horSldr_pushMotor);
 
-        mtr_horSldr_headSteer = new QSlider(horizontalLayoutWidget_3);
-        mtr_horSldr_headSteer->setObjectName(QString::fromUtf8("mtr_horSldr_headSteer"));
-        mtr_horSldr_headSteer->setMinimum(500);
-        mtr_horSldr_headSteer->setMaximum(2500);
-        mtr_horSldr_headSteer->setSingleStep(10);
-        mtr_horSldr_headSteer->setPageStep(10);
-        mtr_horSldr_headSteer->setValue(1500);
-        mtr_horSldr_headSteer->setOrientation(Qt::Horizontal);
-
-        verticalLayout_6->addWidget(mtr_horSldr_headSteer);
-
         mtr_horSldr_pitchSteer = new QSlider(horizontalLayoutWidget_3);
         mtr_horSldr_pitchSteer->setObjectName(QString::fromUtf8("mtr_horSldr_pitchSteer"));
-        mtr_horSldr_pitchSteer->setMinimum(500);
-        mtr_horSldr_pitchSteer->setMaximum(2500);
+        mtr_horSldr_pitchSteer->setMinimum(1000);
+        mtr_horSldr_pitchSteer->setMaximum(2000);
         mtr_horSldr_pitchSteer->setSingleStep(10);
         mtr_horSldr_pitchSteer->setPageStep(10);
         mtr_horSldr_pitchSteer->setValue(1500);
         mtr_horSldr_pitchSteer->setOrientation(Qt::Horizontal);
 
         verticalLayout_6->addWidget(mtr_horSldr_pitchSteer);
+
+        mtr_horSldr_headSteer = new QSlider(horizontalLayoutWidget_3);
+        mtr_horSldr_headSteer->setObjectName(QString::fromUtf8("mtr_horSldr_headSteer"));
+        mtr_horSldr_headSteer->setMinimum(1000);
+        mtr_horSldr_headSteer->setMaximum(2000);
+        mtr_horSldr_headSteer->setSingleStep(10);
+        mtr_horSldr_headSteer->setPageStep(10);
+        mtr_horSldr_headSteer->setValue(1500);
+        mtr_horSldr_headSteer->setOrientation(Qt::Horizontal);
+
+        verticalLayout_6->addWidget(mtr_horSldr_headSteer);
 
 
         horizontalLayout_3->addLayout(verticalLayout_6);
@@ -538,15 +563,19 @@ public:
 
         horizontalLayout_4->addWidget(mtr_checkBox_bbb_ctrl);
 
+        mtr_checkBox_reverse = new QCheckBox(horizontalLayoutWidget_2);
+        mtr_checkBox_reverse->setObjectName(QString::fromUtf8("mtr_checkBox_reverse"));
+
+        horizontalLayout_4->addWidget(mtr_checkBox_reverse);
+
+        horizontalSpacer_10 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_10);
+
         mtr_btn_close_all = new QPushButton(horizontalLayoutWidget_2);
         mtr_btn_close_all->setObjectName(QString::fromUtf8("mtr_btn_close_all"));
 
         horizontalLayout_4->addWidget(mtr_btn_close_all);
-
-        mtr_btn_default = new QPushButton(horizontalLayoutWidget_2);
-        mtr_btn_default->setObjectName(QString::fromUtf8("mtr_btn_default"));
-
-        horizontalLayout_4->addWidget(mtr_btn_default);
 
         mtr_btn_load = new QPushButton(horizontalLayoutWidget_2);
         mtr_btn_load->setObjectName(QString::fromUtf8("mtr_btn_load"));
@@ -646,11 +675,6 @@ public:
 
         horizontalLayout_7->addWidget(posi_btn_reset);
 
-        posi_btn_default = new QPushButton(horizontalLayoutWidget_5);
-        posi_btn_default->setObjectName(QString::fromUtf8("posi_btn_default"));
-
-        horizontalLayout_7->addWidget(posi_btn_default);
-
         posi_btn_load = new QPushButton(horizontalLayoutWidget_5);
         posi_btn_load->setObjectName(QString::fromUtf8("posi_btn_load"));
 
@@ -663,7 +687,79 @@ public:
         line->setFrameShadow(QFrame::Sunken);
         groupBox_fmt = new QGroupBox(man_tab);
         groupBox_fmt->setObjectName(QString::fromUtf8("groupBox_fmt"));
-        groupBox_fmt->setGeometry(QRect(11, 330, 181, 231));
+        groupBox_fmt->setGeometry(QRect(11, 320, 181, 241));
+        fmt_btn_execute = new QPushButton(groupBox_fmt);
+        fmt_btn_execute->setObjectName(QString::fromUtf8("fmt_btn_execute"));
+        fmt_btn_execute->setGeometry(QRect(40, 210, 89, 25));
+        gridLayoutWidget_10 = new QWidget(groupBox_fmt);
+        gridLayoutWidget_10->setObjectName(QString::fromUtf8("gridLayoutWidget_10"));
+        gridLayoutWidget_10->setGeometry(QRect(10, 30, 161, 183));
+        gridLayout_11 = new QGridLayout(gridLayoutWidget_10);
+        gridLayout_11->setObjectName(QString::fromUtf8("gridLayout_11"));
+        gridLayout_11->setContentsMargins(0, 0, 0, 0);
+        fmt_label_time = new QLabel(gridLayoutWidget_10);
+        fmt_label_time->setObjectName(QString::fromUtf8("fmt_label_time"));
+
+        gridLayout_11->addWidget(fmt_label_time, 5, 0, 1, 1);
+
+        fmt_label_heading = new QLabel(gridLayoutWidget_10);
+        fmt_label_heading->setObjectName(QString::fromUtf8("fmt_label_heading"));
+
+        gridLayout_11->addWidget(fmt_label_heading, 4, 0, 1, 1);
+
+        fmt_label_distance = new QLabel(gridLayoutWidget_10);
+        fmt_label_distance->setObjectName(QString::fromUtf8("fmt_label_distance"));
+
+        gridLayout_11->addWidget(fmt_label_distance, 1, 0, 1, 1);
+
+        fmt_label_plan = new QLabel(gridLayoutWidget_10);
+        fmt_label_plan->setObjectName(QString::fromUtf8("fmt_label_plan"));
+
+        gridLayout_11->addWidget(fmt_label_plan, 0, 0, 1, 1);
+
+        fmt_label_depth = new QLabel(gridLayoutWidget_10);
+        fmt_label_depth->setObjectName(QString::fromUtf8("fmt_label_depth"));
+
+        gridLayout_11->addWidget(fmt_label_depth, 3, 0, 1, 1);
+
+        fmt_label_speed = new QLabel(gridLayoutWidget_10);
+        fmt_label_speed->setObjectName(QString::fromUtf8("fmt_label_speed"));
+
+        gridLayout_11->addWidget(fmt_label_speed, 2, 0, 1, 1);
+
+        fmt_cmbx_plan = new QComboBox(gridLayoutWidget_10);
+        fmt_cmbx_plan->addItem(QString());
+        fmt_cmbx_plan->addItem(QString());
+        fmt_cmbx_plan->addItem(QString());
+        fmt_cmbx_plan->setObjectName(QString::fromUtf8("fmt_cmbx_plan"));
+
+        gridLayout_11->addWidget(fmt_cmbx_plan, 0, 1, 1, 1);
+
+        fmt_lineEdit_text_distance = new QLineEdit(gridLayoutWidget_10);
+        fmt_lineEdit_text_distance->setObjectName(QString::fromUtf8("fmt_lineEdit_text_distance"));
+
+        gridLayout_11->addWidget(fmt_lineEdit_text_distance, 1, 1, 1, 1);
+
+        fmt_lineEdit_text_speed = new QLineEdit(gridLayoutWidget_10);
+        fmt_lineEdit_text_speed->setObjectName(QString::fromUtf8("fmt_lineEdit_text_speed"));
+
+        gridLayout_11->addWidget(fmt_lineEdit_text_speed, 2, 1, 1, 1);
+
+        fmt_lineEdit_text_depth = new QLineEdit(gridLayoutWidget_10);
+        fmt_lineEdit_text_depth->setObjectName(QString::fromUtf8("fmt_lineEdit_text_depth"));
+
+        gridLayout_11->addWidget(fmt_lineEdit_text_depth, 3, 1, 1, 1);
+
+        fmt_lineEdit_text_heading = new QLineEdit(gridLayoutWidget_10);
+        fmt_lineEdit_text_heading->setObjectName(QString::fromUtf8("fmt_lineEdit_text_heading"));
+
+        gridLayout_11->addWidget(fmt_lineEdit_text_heading, 4, 1, 1, 1);
+
+        fmt_lineEdit_text_time = new QLineEdit(gridLayoutWidget_10);
+        fmt_lineEdit_text_time->setObjectName(QString::fromUtf8("fmt_lineEdit_text_time"));
+
+        gridLayout_11->addWidget(fmt_lineEdit_text_time, 5, 1, 1, 1);
+
         groupBox_power = new QGroupBox(man_tab);
         groupBox_power->setObjectName(QString::fromUtf8("groupBox_power"));
         groupBox_power->setGeometry(QRect(0, 10, 192, 151));
@@ -708,10 +804,10 @@ public:
         pwr_btn_apply->setGeometry(QRect(50, 120, 89, 25));
         groupBox_comtst = new QGroupBox(man_tab);
         groupBox_comtst->setObjectName(QString::fromUtf8("groupBox_comtst"));
-        groupBox_comtst->setGeometry(QRect(0, 170, 191, 151));
+        groupBox_comtst->setGeometry(QRect(0, 170, 191, 141));
         gridLayoutWidget_7 = new QWidget(groupBox_comtst);
         gridLayoutWidget_7->setObjectName(QString::fromUtf8("gridLayoutWidget_7"));
-        gridLayoutWidget_7->setGeometry(QRect(10, 30, 171, 91));
+        gridLayoutWidget_7->setGeometry(QRect(10, 30, 171, 81));
         gridLayout_9 = new QGridLayout(gridLayoutWidget_7);
         gridLayout_9->setObjectName(QString::fromUtf8("gridLayout_9"));
         gridLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -730,11 +826,6 @@ public:
 
         gridLayout_9->addWidget(comtst_label_rec, 1, 0, 1, 1);
 
-        comtst_label_sended = new QLabel(gridLayoutWidget_7);
-        comtst_label_sended->setObjectName(QString::fromUtf8("comtst_label_sended"));
-
-        gridLayout_9->addWidget(comtst_label_sended, 0, 0, 1, 1);
-
         comtst_label_text_rec = new QLabel(gridLayoutWidget_7);
         comtst_label_text_rec->setObjectName(QString::fromUtf8("comtst_label_text_rec"));
 
@@ -745,15 +836,33 @@ public:
 
         gridLayout_9->addWidget(comtst_label_text_send, 0, 1, 1, 1);
 
+        comtst_label_sended = new QLabel(gridLayoutWidget_7);
+        comtst_label_sended->setObjectName(QString::fromUtf8("comtst_label_sended"));
+
+        gridLayout_9->addWidget(comtst_label_sended, 0, 0, 1, 1);
+
         comtst_btn_test = new QPushButton(groupBox_comtst);
         comtst_btn_test->setObjectName(QString::fromUtf8("comtst_btn_test"));
-        comtst_btn_test->setGeometry(QRect(50, 120, 89, 25));
+        comtst_btn_test->setGeometry(QRect(50, 110, 89, 25));
         groupBox_gldr = new QGroupBox(man_tab);
         groupBox_gldr->setObjectName(QString::fromUtf8("groupBox_gldr"));
         groupBox_gldr->setGeometry(QRect(200, 330, 181, 231));
-        pushButton = new QPushButton(groupBox_gldr);
+        verticalLayoutWidget = new QWidget(groupBox_gldr);
+        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
+        verticalLayoutWidget->setGeometry(QRect(10, 20, 160, 80));
+        verticalLayout_11 = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout_11->setObjectName(QString::fromUtf8("verticalLayout_11"));
+        verticalLayout_11->setContentsMargins(0, 0, 0, 0);
+        lineEdit = new QLineEdit(verticalLayoutWidget);
+        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+
+        verticalLayout_11->addWidget(lineEdit);
+
+        pushButton = new QPushButton(verticalLayoutWidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(50, 110, 75, 23));
+
+        verticalLayout_11->addWidget(pushButton);
+
         groupBox_compass = new QGroupBox(man_tab);
         groupBox_compass->setObjectName(QString::fromUtf8("groupBox_compass"));
         groupBox_compass->setGeometry(QRect(390, 330, 201, 231));
@@ -776,15 +885,140 @@ public:
         gridLayout_5 = new QGridLayout(gridLayoutWidget_5);
         gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
         gridLayout_5->setContentsMargins(0, 0, 0, 0);
+        polav6_label_text_pitch = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_pitch->setObjectName(QString::fromUtf8("polav6_label_text_pitch"));
+
+        gridLayout_5->addWidget(polav6_label_text_pitch, 3, 3, 1, 1);
+
         polav6_label_text_acc_y = new QLabel(gridLayoutWidget_5);
         polav6_label_text_acc_y->setObjectName(QString::fromUtf8("polav6_label_text_acc_y"));
 
         gridLayout_5->addWidget(polav6_label_text_acc_y, 1, 5, 1, 1);
 
+        polav6_label_omg_y = new QLabel(gridLayoutWidget_5);
+        polav6_label_omg_y->setObjectName(QString::fromUtf8("polav6_label_omg_y"));
+        polav6_label_omg_y->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_omg_y, 4, 4, 1, 1);
+
+        polav6_label_v_east = new QLabel(gridLayoutWidget_5);
+        polav6_label_v_east->setObjectName(QString::fromUtf8("polav6_label_v_east"));
+        polav6_label_v_east->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_v_east, 0, 2, 1, 1);
+
+        polav6_label_text_height = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_height->setObjectName(QString::fromUtf8("polav6_label_text_height"));
+
+        gridLayout_5->addWidget(polav6_label_text_height, 5, 1, 1, 1);
+
+        polav6_label_text_acc_x = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_acc_x->setObjectName(QString::fromUtf8("polav6_label_text_acc_x"));
+
+        gridLayout_5->addWidget(polav6_label_text_acc_x, 0, 5, 1, 1);
+
+        polav6_label_text_v_east = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_v_east->setObjectName(QString::fromUtf8("polav6_label_text_v_east"));
+
+        gridLayout_5->addWidget(polav6_label_text_v_east, 0, 3, 1, 1);
+
+        polav6_label_pitch = new QLabel(gridLayoutWidget_5);
+        polav6_label_pitch->setObjectName(QString::fromUtf8("polav6_label_pitch"));
+        polav6_label_pitch->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_pitch, 3, 2, 1, 1);
+
+        polav6_label_v_sky = new QLabel(gridLayoutWidget_5);
+        polav6_label_v_sky->setObjectName(QString::fromUtf8("polav6_label_v_sky"));
+        polav6_label_v_sky->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_v_sky, 2, 2, 1, 1);
+
+        polav6_label_omg_X = new QLabel(gridLayoutWidget_5);
+        polav6_label_omg_X->setObjectName(QString::fromUtf8("polav6_label_omg_X"));
+        polav6_label_omg_X->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_omg_X, 3, 4, 1, 1);
+
+        polav6_label_text_yaw = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_yaw->setObjectName(QString::fromUtf8("polav6_label_text_yaw"));
+
+        gridLayout_5->addWidget(polav6_label_text_yaw, 4, 3, 1, 1);
+
+        polav6_label_text_omg_y = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_omg_y->setObjectName(QString::fromUtf8("polav6_label_text_omg_y"));
+
+        gridLayout_5->addWidget(polav6_label_text_omg_y, 4, 5, 1, 1);
+
+        polav6_label_text_omg_x = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_omg_x->setObjectName(QString::fromUtf8("polav6_label_text_omg_x"));
+
+        gridLayout_5->addWidget(polav6_label_text_omg_x, 3, 5, 1, 1);
+
+        polav6_label_head = new QLabel(gridLayoutWidget_5);
+        polav6_label_head->setObjectName(QString::fromUtf8("polav6_label_head"));
+        polav6_label_head->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_head, 2, 0, 1, 1);
+
         polav6_label_text_head = new QLabel(gridLayoutWidget_5);
         polav6_label_text_head->setObjectName(QString::fromUtf8("polav6_label_text_head"));
 
         gridLayout_5->addWidget(polav6_label_text_head, 2, 1, 1, 1);
+
+        polav6_label_text_gps_v = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_gps_v->setObjectName(QString::fromUtf8("polav6_label_text_gps_v"));
+
+        gridLayout_5->addWidget(polav6_label_text_gps_v, 1, 1, 1, 1);
+
+        polav6_label_v_north = new QLabel(gridLayoutWidget_5);
+        polav6_label_v_north->setObjectName(QString::fromUtf8("polav6_label_v_north"));
+        polav6_label_v_north->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_v_north, 1, 2, 1, 1);
+
+        polav6_label_text_lat = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_lat->setObjectName(QString::fromUtf8("polav6_label_text_lat"));
+
+        gridLayout_5->addWidget(polav6_label_text_lat, 4, 1, 1, 1);
+
+        polav6_label_acc_x = new QLabel(gridLayoutWidget_5);
+        polav6_label_acc_x->setObjectName(QString::fromUtf8("polav6_label_acc_x"));
+        polav6_label_acc_x->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_acc_x, 0, 4, 1, 1);
+
+        polav6_label_text_long = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_long->setObjectName(QString::fromUtf8("polav6_label_text_long"));
+
+        gridLayout_5->addWidget(polav6_label_text_long, 3, 1, 1, 1);
+
+        polav6_label_text_navi_tim = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_navi_tim->setObjectName(QString::fromUtf8("polav6_label_text_navi_tim"));
+
+        gridLayout_5->addWidget(polav6_label_text_navi_tim, 0, 1, 1, 1);
+
+        polav6_label_omg_z = new QLabel(gridLayoutWidget_5);
+        polav6_label_omg_z->setObjectName(QString::fromUtf8("polav6_label_omg_z"));
+        polav6_label_omg_z->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_omg_z, 5, 4, 1, 1);
+
+        polav6_label_text_omg_z = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_omg_z->setObjectName(QString::fromUtf8("polav6_label_text_omg_z"));
+
+        gridLayout_5->addWidget(polav6_label_text_omg_z, 5, 5, 1, 1);
+
+        polav6_label_yaw = new QLabel(gridLayoutWidget_5);
+        polav6_label_yaw->setObjectName(QString::fromUtf8("polav6_label_yaw"));
+        polav6_label_yaw->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_yaw, 4, 2, 1, 1);
+
+        polav6_label_text_roll = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_roll->setObjectName(QString::fromUtf8("polav6_label_text_roll"));
+
+        gridLayout_5->addWidget(polav6_label_text_roll, 5, 3, 1, 1);
 
         polav6_label_height = new QLabel(gridLayoutWidget_5);
         polav6_label_height->setObjectName(QString::fromUtf8("polav6_label_height"));
@@ -792,16 +1026,22 @@ public:
 
         gridLayout_5->addWidget(polav6_label_height, 5, 0, 1, 1);
 
-        polav6_label_text_acc_x = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_acc_x->setObjectName(QString::fromUtf8("polav6_label_text_acc_x"));
+        polav6_label_text_v_north = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_v_north->setObjectName(QString::fromUtf8("polav6_label_text_v_north"));
 
-        gridLayout_5->addWidget(polav6_label_text_acc_x, 0, 5, 1, 1);
+        gridLayout_5->addWidget(polav6_label_text_v_north, 1, 3, 1, 1);
 
-        polav6_label_v_sky = new QLabel(gridLayoutWidget_5);
-        polav6_label_v_sky->setObjectName(QString::fromUtf8("polav6_label_v_sky"));
-        polav6_label_v_sky->setFont(font);
+        polav6_label_gps_v = new QLabel(gridLayoutWidget_5);
+        polav6_label_gps_v->setObjectName(QString::fromUtf8("polav6_label_gps_v"));
+        polav6_label_gps_v->setFont(font);
 
-        gridLayout_5->addWidget(polav6_label_v_sky, 2, 2, 1, 1);
+        gridLayout_5->addWidget(polav6_label_gps_v, 1, 0, 1, 1);
+
+        polav6_label_navi_tim = new QLabel(gridLayoutWidget_5);
+        polav6_label_navi_tim->setObjectName(QString::fromUtf8("polav6_label_navi_tim"));
+        polav6_label_navi_tim->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_navi_tim, 0, 0, 1, 1);
 
         polav6_label_text_v_sky = new QLabel(gridLayoutWidget_5);
         polav6_label_text_v_sky->setObjectName(QString::fromUtf8("polav6_label_text_v_sky"));
@@ -814,49 +1054,17 @@ public:
 
         gridLayout_5->addWidget(polav6_label_long, 3, 0, 1, 1);
 
+        polav6_label_acc_y = new QLabel(gridLayoutWidget_5);
+        polav6_label_acc_y->setObjectName(QString::fromUtf8("polav6_label_acc_y"));
+        polav6_label_acc_y->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_acc_y, 1, 4, 1, 1);
+
         polav6_label_roll = new QLabel(gridLayoutWidget_5);
         polav6_label_roll->setObjectName(QString::fromUtf8("polav6_label_roll"));
         polav6_label_roll->setFont(font);
 
         gridLayout_5->addWidget(polav6_label_roll, 5, 2, 1, 1);
-
-        polav6_label_omg_X = new QLabel(gridLayoutWidget_5);
-        polav6_label_omg_X->setObjectName(QString::fromUtf8("polav6_label_omg_X"));
-        polav6_label_omg_X->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_omg_X, 3, 4, 1, 1);
-
-        polav6_label_text_height = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_height->setObjectName(QString::fromUtf8("polav6_label_text_height"));
-
-        gridLayout_5->addWidget(polav6_label_text_height, 5, 1, 1, 1);
-
-        polav6_label_gps_v = new QLabel(gridLayoutWidget_5);
-        polav6_label_gps_v->setObjectName(QString::fromUtf8("polav6_label_gps_v"));
-        polav6_label_gps_v->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_gps_v, 1, 0, 1, 1);
-
-        polav6_label_text_omg_x = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_omg_x->setObjectName(QString::fromUtf8("polav6_label_text_omg_x"));
-
-        gridLayout_5->addWidget(polav6_label_text_omg_x, 3, 5, 1, 1);
-
-        polav6_label_text_lat = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_lat->setObjectName(QString::fromUtf8("polav6_label_text_lat"));
-
-        gridLayout_5->addWidget(polav6_label_text_lat, 4, 1, 1, 1);
-
-        polav6_label_yaw = new QLabel(gridLayoutWidget_5);
-        polav6_label_yaw->setObjectName(QString::fromUtf8("polav6_label_yaw"));
-        polav6_label_yaw->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_yaw, 4, 2, 1, 1);
-
-        polav6_label_text_gps_v = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_gps_v->setObjectName(QString::fromUtf8("polav6_label_text_gps_v"));
-
-        gridLayout_5->addWidget(polav6_label_text_gps_v, 1, 1, 1, 1);
 
         polav6_label_lat = new QLabel(gridLayoutWidget_5);
         polav6_label_lat->setObjectName(QString::fromUtf8("polav6_label_lat"));
@@ -864,115 +1072,38 @@ public:
 
         gridLayout_5->addWidget(polav6_label_lat, 4, 0, 1, 1);
 
-        polav6_label_omg_z = new QLabel(gridLayoutWidget_5);
-        polav6_label_omg_z->setObjectName(QString::fromUtf8("polav6_label_omg_z"));
-        polav6_label_omg_z->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_omg_z, 5, 4, 1, 1);
-
         polav6_label_acc_z = new QLabel(gridLayoutWidget_5);
         polav6_label_acc_z->setObjectName(QString::fromUtf8("polav6_label_acc_z"));
         polav6_label_acc_z->setFont(font);
 
         gridLayout_5->addWidget(polav6_label_acc_z, 2, 4, 1, 1);
 
-        polav6_label_text_v_north = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_v_north->setObjectName(QString::fromUtf8("polav6_label_text_v_north"));
-
-        gridLayout_5->addWidget(polav6_label_text_v_north, 1, 3, 1, 1);
-
-        polav6_label_head = new QLabel(gridLayoutWidget_5);
-        polav6_label_head->setObjectName(QString::fromUtf8("polav6_label_head"));
-        polav6_label_head->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_head, 2, 0, 1, 1);
-
-        polav6_label_text_v_east = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_v_east->setObjectName(QString::fromUtf8("polav6_label_text_v_east"));
-
-        gridLayout_5->addWidget(polav6_label_text_v_east, 0, 3, 1, 1);
-
-        polav6_label_text_omg_z = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_omg_z->setObjectName(QString::fromUtf8("polav6_label_text_omg_z"));
-
-        gridLayout_5->addWidget(polav6_label_text_omg_z, 5, 5, 1, 1);
-
-        polav6_label_omg_y = new QLabel(gridLayoutWidget_5);
-        polav6_label_omg_y->setObjectName(QString::fromUtf8("polav6_label_omg_y"));
-        polav6_label_omg_y->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_omg_y, 4, 4, 1, 1);
-
-        polav6_label_text_yaw = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_yaw->setObjectName(QString::fromUtf8("polav6_label_text_yaw"));
-
-        gridLayout_5->addWidget(polav6_label_text_yaw, 4, 3, 1, 1);
-
-        polav6_label_acc_x = new QLabel(gridLayoutWidget_5);
-        polav6_label_acc_x->setObjectName(QString::fromUtf8("polav6_label_acc_x"));
-        polav6_label_acc_x->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_acc_x, 0, 4, 1, 1);
-
-        polav6_label_text_omg_y = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_omg_y->setObjectName(QString::fromUtf8("polav6_label_text_omg_y"));
-
-        gridLayout_5->addWidget(polav6_label_text_omg_y, 4, 5, 1, 1);
-
-        polav6_label_v_north = new QLabel(gridLayoutWidget_5);
-        polav6_label_v_north->setObjectName(QString::fromUtf8("polav6_label_v_north"));
-        polav6_label_v_north->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_v_north, 1, 2, 1, 1);
-
-        polav6_label_text_pitch = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_pitch->setObjectName(QString::fromUtf8("polav6_label_text_pitch"));
-
-        gridLayout_5->addWidget(polav6_label_text_pitch, 3, 3, 1, 1);
-
-        polav6_label_text_long = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_long->setObjectName(QString::fromUtf8("polav6_label_text_long"));
-
-        gridLayout_5->addWidget(polav6_label_text_long, 3, 1, 1, 1);
-
-        polav6_label_text_roll = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_roll->setObjectName(QString::fromUtf8("polav6_label_text_roll"));
-
-        gridLayout_5->addWidget(polav6_label_text_roll, 5, 3, 1, 1);
-
-        polav6_label_pitch = new QLabel(gridLayoutWidget_5);
-        polav6_label_pitch->setObjectName(QString::fromUtf8("polav6_label_pitch"));
-        polav6_label_pitch->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_pitch, 3, 2, 1, 1);
-
-        polav6_label_acc_y = new QLabel(gridLayoutWidget_5);
-        polav6_label_acc_y->setObjectName(QString::fromUtf8("polav6_label_acc_y"));
-        polav6_label_acc_y->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_acc_y, 1, 4, 1, 1);
-
-        polav6_label_v_east = new QLabel(gridLayoutWidget_5);
-        polav6_label_v_east->setObjectName(QString::fromUtf8("polav6_label_v_east"));
-        polav6_label_v_east->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_v_east, 0, 2, 1, 1);
-
-        polav6_label_navi_tim = new QLabel(gridLayoutWidget_5);
-        polav6_label_navi_tim->setObjectName(QString::fromUtf8("polav6_label_navi_tim"));
-        polav6_label_navi_tim->setFont(font);
-
-        gridLayout_5->addWidget(polav6_label_navi_tim, 0, 0, 1, 1);
-
         polav6_label_text_acc_z = new QLabel(gridLayoutWidget_5);
         polav6_label_text_acc_z->setObjectName(QString::fromUtf8("polav6_label_text_acc_z"));
 
         gridLayout_5->addWidget(polav6_label_text_acc_z, 2, 5, 1, 1);
 
-        polav6_label_text_navi_tim = new QLabel(gridLayoutWidget_5);
-        polav6_label_text_navi_tim->setObjectName(QString::fromUtf8("polav6_label_text_navi_tim"));
+        polav6_label_gps_head = new QLabel(gridLayoutWidget_5);
+        polav6_label_gps_head->setObjectName(QString::fromUtf8("polav6_label_gps_head"));
+        polav6_label_gps_head->setFont(font);
 
-        gridLayout_5->addWidget(polav6_label_text_navi_tim, 0, 1, 1, 1);
+        gridLayout_5->addWidget(polav6_label_gps_head, 6, 0, 1, 1);
+
+        polav6_label_mag_head = new QLabel(gridLayoutWidget_5);
+        polav6_label_mag_head->setObjectName(QString::fromUtf8("polav6_label_mag_head"));
+        polav6_label_mag_head->setFont(font);
+
+        gridLayout_5->addWidget(polav6_label_mag_head, 6, 2, 1, 1);
+
+        polav6_label_text_gps_head = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_gps_head->setObjectName(QString::fromUtf8("polav6_label_text_gps_head"));
+
+        gridLayout_5->addWidget(polav6_label_text_gps_head, 6, 1, 1, 1);
+
+        polav6_label_text_mag_head = new QLabel(gridLayoutWidget_5);
+        polav6_label_text_mag_head->setObjectName(QString::fromUtf8("polav6_label_text_mag_head"));
+
+        gridLayout_5->addWidget(polav6_label_text_mag_head, 6, 3, 1, 1);
 
         groupBox_environment = new QGroupBox(data_tab);
         groupBox_environment->setObjectName(QString::fromUtf8("groupBox_environment"));
@@ -1265,13 +1396,12 @@ public:
         gridLayout_7 = new QGridLayout(gridLayoutWidget_6);
         gridLayout_7->setObjectName(QString::fromUtf8("gridLayout_7"));
         gridLayout_7->setContentsMargins(0, 0, 0, 0);
-        slct_btn_query = new QPushButton(gridLayoutWidget_6);
-        slct_btn_query->setObjectName(QString::fromUtf8("slct_btn_query"));
+        slct_btn_apply = new QPushButton(gridLayoutWidget_6);
+        slct_btn_apply->setObjectName(QString::fromUtf8("slct_btn_apply"));
 
-        gridLayout_7->addWidget(slct_btn_query, 0, 1, 1, 1);
+        gridLayout_7->addWidget(slct_btn_apply, 0, 1, 1, 1);
 
         slct_cmbx_fish = new QComboBox(gridLayoutWidget_6);
-        slct_cmbx_fish->addItem(QString());
         slct_cmbx_fish->addItem(QString());
         slct_cmbx_fish->addItem(QString());
         slct_cmbx_fish->addItem(QString());
@@ -1279,15 +1409,15 @@ public:
 
         gridLayout_7->addWidget(slct_cmbx_fish, 0, 0, 1, 1);
 
-        slct_label_interval = new QLabel(gridLayoutWidget_6);
-        slct_label_interval->setObjectName(QString::fromUtf8("slct_label_interval"));
+        slct_label_current_fish = new QLabel(gridLayoutWidget_6);
+        slct_label_current_fish->setObjectName(QString::fromUtf8("slct_label_current_fish"));
 
-        gridLayout_7->addWidget(slct_label_interval, 1, 0, 1, 1);
+        gridLayout_7->addWidget(slct_label_current_fish, 1, 0, 1, 1);
 
-        slct_lineEdit_text_interval = new QLineEdit(gridLayoutWidget_6);
-        slct_lineEdit_text_interval->setObjectName(QString::fromUtf8("slct_lineEdit_text_interval"));
+        comtst_label_text_current_fish = new QLabel(gridLayoutWidget_6);
+        comtst_label_text_current_fish->setObjectName(QString::fromUtf8("comtst_label_text_current_fish"));
 
-        gridLayout_7->addWidget(slct_lineEdit_text_interval, 1, 1, 1, 1);
+        gridLayout_7->addWidget(comtst_label_text_current_fish, 1, 1, 1, 1);
 
         groupBox_log = new QGroupBox(MainWidget);
         groupBox_log->setObjectName(QString::fromUtf8("groupBox_log"));
@@ -1384,18 +1514,33 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(auto_tab), QApplication::translate("MainWidget", "Auto", nullptr));
         groupBox_mtr->setTitle(QApplication::translate("MainWidget", "Motion Control", nullptr));
         mtr_label_pushMotor->setText(QApplication::translate("MainWidget", "PushMotor", nullptr));
-        mtr_label_headSteer->setText(QApplication::translate("MainWidget", "HeadSteer", nullptr));
         mtr_label_pitchSteer->setText(QApplication::translate("MainWidget", "PitchSteer", nullptr));
-        mtr_checkBox_bbb_ctrl->setText(QApplication::translate("MainWidget", "BBB Control", nullptr));
+        mtr_label_headSteer->setText(QApplication::translate("MainWidget", "HeadSteer", nullptr));
+        mtr_checkBox_bbb_ctrl->setText(QApplication::translate("MainWidget", "BBB Ctr", nullptr));
+        mtr_checkBox_reverse->setText(QApplication::translate("MainWidget", "Reverse", nullptr));
         mtr_btn_close_all->setText(QApplication::translate("MainWidget", "Close All", nullptr));
-        mtr_btn_default->setText(QApplication::translate("MainWidget", "Default", nullptr));
         mtr_btn_load->setText(QApplication::translate("MainWidget", "Load", nullptr));
         posi_label_pumpPosi->setText(QApplication::translate("MainWidget", "PumpPosi  ", nullptr));
         posi_label_massPosi->setText(QApplication::translate("MainWidget", "MassPosi", nullptr));
         posi_btn_reset->setText(QApplication::translate("MainWidget", "Reset", nullptr));
-        posi_btn_default->setText(QApplication::translate("MainWidget", "Default", nullptr));
         posi_btn_load->setText(QApplication::translate("MainWidget", "Load", nullptr));
         groupBox_fmt->setTitle(QApplication::translate("MainWidget", "Formation Control", nullptr));
+        fmt_btn_execute->setText(QApplication::translate("MainWidget", "Execute", nullptr));
+        fmt_label_time->setText(QApplication::translate("MainWidget", "Time(s)", nullptr));
+        fmt_label_heading->setText(QApplication::translate("MainWidget", "Heading(rad)", nullptr));
+        fmt_label_distance->setText(QApplication::translate("MainWidget", "Distance(m)", nullptr));
+        fmt_label_plan->setText(QApplication::translate("MainWidget", "Plan", nullptr));
+        fmt_label_depth->setText(QApplication::translate("MainWidget", "Depth(m)", nullptr));
+        fmt_label_speed->setText(QApplication::translate("MainWidget", "Speed(m/s)", nullptr));
+        fmt_cmbx_plan->setItemText(0, QApplication::translate("MainWidget", "Plan0", nullptr));
+        fmt_cmbx_plan->setItemText(1, QApplication::translate("MainWidget", "Plan1", nullptr));
+        fmt_cmbx_plan->setItemText(2, QApplication::translate("MainWidget", "Plan2", nullptr));
+
+        fmt_lineEdit_text_distance->setText(QApplication::translate("MainWidget", "50", nullptr));
+        fmt_lineEdit_text_speed->setText(QApplication::translate("MainWidget", "0.25", nullptr));
+        fmt_lineEdit_text_depth->setText(QApplication::translate("MainWidget", "1", nullptr));
+        fmt_lineEdit_text_heading->setText(QApplication::translate("MainWidget", "0", nullptr));
+        fmt_lineEdit_text_time->setText(QApplication::translate("MainWidget", "600", nullptr));
         groupBox_power->setTitle(QApplication::translate("MainWidget", "Power Control", nullptr));
         pwr_checkBox_polav6->setText(QApplication::translate("MainWidget", "Pola V6", nullptr));
         pwr_checkBox_sbd9602->setText(QApplication::translate("MainWidget", "SBD9602", nullptr));
@@ -1408,53 +1553,58 @@ public:
         comtst_label_text_loss->setText(QApplication::translate("MainWidget", "-", nullptr));
         comtst_label_loss->setText(QApplication::translate("MainWidget", "Loss(%)", nullptr));
         comtst_label_rec->setText(QApplication::translate("MainWidget", "Recieved", nullptr));
-        comtst_label_sended->setText(QApplication::translate("MainWidget", "Sended", nullptr));
         comtst_label_text_rec->setText(QApplication::translate("MainWidget", "-", nullptr));
         comtst_label_text_send->setText(QApplication::translate("MainWidget", "-", nullptr));
+        comtst_label_sended->setText(QApplication::translate("MainWidget", "Sended", nullptr));
         comtst_btn_test->setText(QApplication::translate("MainWidget", "Test", nullptr));
         groupBox_gldr->setTitle(QApplication::translate("MainWidget", "Glider Control", nullptr));
+        lineEdit->setText(QString());
         pushButton->setText(QApplication::translate("MainWidget", "test", nullptr));
         groupBox_compass->setTitle(QApplication::translate("MainWidget", "Compass", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(man_tab), QApplication::translate("MainWidget", "Control", nullptr));
         polav6_groupBox->setTitle(QApplication::translate("MainWidget", "Pola V6", nullptr));
         label_text_monitor_navi_tim->setText(QString());
         label_text_monitor_hight->setText(QString());
+        polav6_label_text_pitch->setText(QApplication::translate("MainWidget", "-", nullptr));
         polav6_label_text_acc_y->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_text_head->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_height->setText(QApplication::translate("MainWidget", "Height", nullptr));
+        polav6_label_omg_y->setText(QApplication::translate("MainWidget", "Omg_y", nullptr));
+        polav6_label_v_east->setText(QApplication::translate("MainWidget", "V_east", nullptr));
+        polav6_label_text_height->setText(QApplication::translate("MainWidget", "-", nullptr));
         polav6_label_text_acc_x->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_text_v_east->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_pitch->setText(QApplication::translate("MainWidget", "Pitch", nullptr));
         polav6_label_v_sky->setText(QApplication::translate("MainWidget", "V_sky", nullptr));
+        polav6_label_omg_X->setText(QApplication::translate("MainWidget", "Omg_x", nullptr));
+        polav6_label_text_yaw->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_text_omg_y->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_text_omg_x->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_head->setText(QApplication::translate("MainWidget", "Heading", nullptr));
+        polav6_label_text_head->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_text_gps_v->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_v_north->setText(QApplication::translate("MainWidget", "V_north", nullptr));
+        polav6_label_text_lat->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_acc_x->setText(QApplication::translate("MainWidget", "Acc_x", nullptr));
+        polav6_label_text_long->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_text_navi_tim->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_omg_z->setText(QApplication::translate("MainWidget", "Omg_z", nullptr));
+        polav6_label_text_omg_z->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_yaw->setText(QApplication::translate("MainWidget", "Yaw", nullptr));
+        polav6_label_text_roll->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_height->setText(QApplication::translate("MainWidget", "Height", nullptr));
+        polav6_label_text_v_north->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_gps_v->setText(QApplication::translate("MainWidget", "GPS_v", nullptr));
+        polav6_label_navi_tim->setText(QApplication::translate("MainWidget", "Navi_tim", nullptr));
         polav6_label_text_v_sky->setText(QApplication::translate("MainWidget", "-", nullptr));
         polav6_label_long->setText(QApplication::translate("MainWidget", "Longtitude", nullptr));
-        polav6_label_roll->setText(QApplication::translate("MainWidget", "Roll", nullptr));
-        polav6_label_omg_X->setText(QApplication::translate("MainWidget", "Omg_x", nullptr));
-        polav6_label_text_height->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_gps_v->setText(QApplication::translate("MainWidget", "Gps_v", nullptr));
-        polav6_label_text_omg_x->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_text_lat->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_yaw->setText(QApplication::translate("MainWidget", "Yaw", nullptr));
-        polav6_label_text_gps_v->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_lat->setText(QApplication::translate("MainWidget", "Latitude", nullptr));
-        polav6_label_omg_z->setText(QApplication::translate("MainWidget", "Omg_z", nullptr));
-        polav6_label_acc_z->setText(QApplication::translate("MainWidget", "Acc_z", nullptr));
-        polav6_label_text_v_north->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_head->setText(QApplication::translate("MainWidget", "Head", nullptr));
-        polav6_label_text_v_east->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_text_omg_z->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_omg_y->setText(QApplication::translate("MainWidget", "Omg_y", nullptr));
-        polav6_label_text_yaw->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_acc_x->setText(QApplication::translate("MainWidget", "Acc_x", nullptr));
-        polav6_label_text_omg_y->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_v_north->setText(QApplication::translate("MainWidget", "V_north", nullptr));
-        polav6_label_text_pitch->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_text_long->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_text_roll->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_pitch->setText(QApplication::translate("MainWidget", "Pitch", nullptr));
         polav6_label_acc_y->setText(QApplication::translate("MainWidget", "Acc_y", nullptr));
-        polav6_label_v_east->setText(QApplication::translate("MainWidget", "V_east", nullptr));
-        polav6_label_navi_tim->setText(QApplication::translate("MainWidget", "Navi_tim", nullptr));
+        polav6_label_roll->setText(QApplication::translate("MainWidget", "Roll", nullptr));
+        polav6_label_lat->setText(QApplication::translate("MainWidget", "Latitude", nullptr));
+        polav6_label_acc_z->setText(QApplication::translate("MainWidget", "Acc_z", nullptr));
         polav6_label_text_acc_z->setText(QApplication::translate("MainWidget", "-", nullptr));
-        polav6_label_text_navi_tim->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_gps_head->setText(QApplication::translate("MainWidget", "GPS_heading", nullptr));
+        polav6_label_mag_head->setText(QApplication::translate("MainWidget", "Mag_heading", nullptr));
+        polav6_label_text_gps_head->setText(QApplication::translate("MainWidget", "-", nullptr));
+        polav6_label_text_mag_head->setText(QApplication::translate("MainWidget", "-", nullptr));
         groupBox_environment->setTitle(QApplication::translate("MainWidget", "Environment", nullptr));
         envir_label_text_volt->setText(QApplication::translate("MainWidget", "-", nullptr));
         envir_label_temper->setText(QApplication::translate("MainWidget", "Temp", nullptr));
@@ -1494,22 +1644,21 @@ public:
         serst_label_msg->setText(QApplication::translate("MainWidget", "Nothing connected!", nullptr));
         serst_label_baud->setText(QApplication::translate("MainWidget", "BaudRate", nullptr));
         serst_label_port->setText(QApplication::translate("MainWidget", "Port", nullptr));
-        serst_cobx_baud->setItemText(0, QApplication::translate("MainWidget", "9600", nullptr));
-        serst_cobx_baud->setItemText(1, QApplication::translate("MainWidget", "115200", nullptr));
+        serst_cobx_baud->setItemText(0, QApplication::translate("MainWidget", "115200", nullptr));
+        serst_cobx_baud->setItemText(1, QApplication::translate("MainWidget", "9600", nullptr));
         serst_cobx_baud->setItemText(2, QApplication::translate("MainWidget", "230400", nullptr));
         serst_cobx_baud->setItemText(3, QApplication::translate("MainWidget", "460800", nullptr));
 
         serst_btn_refresh->setText(QApplication::translate("MainWidget", "Refresh", nullptr));
         serst_btn_con->setText(QApplication::translate("MainWidget", "Open Port", nullptr));
         slct_groupBox->setTitle(QApplication::translate("MainWidget", "Selection", nullptr));
-        slct_btn_query->setText(QApplication::translate("MainWidget", "Query", nullptr));
+        slct_btn_apply->setText(QApplication::translate("MainWidget", "Apply", nullptr));
         slct_cmbx_fish->setItemText(0, QApplication::translate("MainWidget", "Fish1", nullptr));
         slct_cmbx_fish->setItemText(1, QApplication::translate("MainWidget", "Fish2", nullptr));
         slct_cmbx_fish->setItemText(2, QApplication::translate("MainWidget", "Fish3", nullptr));
-        slct_cmbx_fish->setItemText(3, QApplication::translate("MainWidget", "Fish4", nullptr));
 
-        slct_label_interval->setText(QApplication::translate("MainWidget", "interval/ms", nullptr));
-        slct_lineEdit_text_interval->setText(QApplication::translate("MainWidget", "1000", nullptr));
+        slct_label_current_fish->setText(QApplication::translate("MainWidget", "Current", nullptr));
+        comtst_label_text_current_fish->setText(QApplication::translate("MainWidget", "-", nullptr));
         groupBox_log->setTitle(QApplication::translate("MainWidget", "Log Record", nullptr));
         log_checkBox_local_record->setText(QApplication::translate("MainWidget", "Local", nullptr));
         log_checkBox_bbb_record->setText(QApplication::translate("MainWidget", "BBB", nullptr));

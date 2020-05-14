@@ -21,7 +21,6 @@ const uint8_t FRAME_TAIL = 0xcc;
 const uint8_t FRAME_ADDR_FISH1 = 0x01;
 const uint8_t FRAME_ADDR_FISH2 = 0x02;
 const uint8_t FRAME_ADDR_FISH3 = 0x03;
-const uint8_t FRAME_ADDR_FISH4 = 0x04;
 const uint8_t FRAME_ADDR_BOARDCAST = 0x55;
 
 // readwrite byte
@@ -34,8 +33,9 @@ const uint8_t FRAME_FUNC_POLAV6 = 0x02;
 const uint8_t FRAME_FUNC_MOTOR = 0x03;
 const uint8_t FRAME_FUNC_POSTURE = 0x04;
 const uint8_t FRAME_FUNC_AUTO = 0x05;
-const uint8_t FRAME_FUNC_CONNECTION = 0x06;
+const uint8_t FRAME_FUNC_FORMATION = 0x06;
 const uint8_t COM_TEST = 0x07;
+const uint8_t FRAME_FUNC_CONNECTION = 0x08;
 
 
 // max buffer size
@@ -56,14 +56,20 @@ const uint16_t MASS_POSITION = 4000;
 
 // joystick mapping
 // axis index
-const uint8_t PUSH_MORTOR = 1;
-const uint8_t HEAD_STEER = 2;
+const uint8_t PUSH_MORTOR = 3;
+const uint8_t HEAD_STEER = 0;
+const uint8_t PITCH_STEER = 1;
 // button index
-const uint8_t A = 0;
+const uint8_t BRAKE_A = 0;
 const uint8_t EXIT_B = 1;
 const uint8_t RESET_X = 2;
-const uint8_t Y = 3;
+const uint8_t SHIFT_Y = 3;
+const uint8_t LB = 4;
+const uint8_t RB = 5;
+const uint8_t back = 6;
+const uint8_t start = 7;
 
+#pragma pack(push, 1)
 // query data and connection confirm frame
 typedef struct {
     uint8_t head_h;
@@ -114,6 +120,8 @@ typedef struct{
     float pitch;
     float yaw;
     float roll;
+    float gps_heading;
+    float mag_heading;
 } PolaV6_Data_Package;
 
 // motor control parameters
@@ -195,5 +203,29 @@ typedef struct{
     uint8_t tail;
 } Test_Frame;
 
+// formation control parameters
+typedef struct{
+    float status_ctrl;
+    float plan;
+    float distance;
+    float speed;
+    float depth;
+    float heading;
+    float time;
+} Formation_Para_Package;
+
+// formation control frame
+typedef struct{
+    uint8_t head_h;
+    uint8_t head_l;
+    uint8_t addr;
+    uint8_t rw;
+    uint8_t len;
+    uint8_t func_id;
+    Formation_Para_Package formation_para;
+    uint8_t xor_check;
+    uint8_t tail;
+} Formation_Frame;
+#pragma pack(pop)
 
 #endif // DATASTRUCT_H
