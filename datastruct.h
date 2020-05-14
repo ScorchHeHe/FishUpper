@@ -21,7 +21,6 @@ const uint8_t FRAME_TAIL = 0xcc;
 const uint8_t FRAME_ADDR_FISH1 = 0x01;
 const uint8_t FRAME_ADDR_FISH2 = 0x02;
 const uint8_t FRAME_ADDR_FISH3 = 0x03;
-const uint8_t FRAME_ADDR_FISH4 = 0x04;
 const uint8_t FRAME_ADDR_BOARDCAST = 0x55;
 
 // readwrite byte
@@ -61,12 +60,14 @@ const uint8_t PUSH_MORTOR = 3;
 const uint8_t HEAD_STEER = 0;
 const uint8_t PITCH_STEER = 1;
 // button index
-const uint8_t A = 0;
+const uint8_t BRAKE_A = 0;
 const uint8_t EXIT_B = 1;
 const uint8_t RESET_X = 2;
 const uint8_t SHIFT_Y = 3;
 const uint8_t LB = 4;
 const uint8_t RB = 5;
+const uint8_t back = 6;
+const uint8_t start = 7;
 
 #pragma pack(push, 1)
 // query data and connection confirm frame

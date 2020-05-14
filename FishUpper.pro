@@ -37,8 +37,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    documents/HDUBeagleBoneSTM32串口通信协议数据表3.0.xlsx \
-    webview/FishMap.html \
-    webview/walkroute.html
+    webview/FishMap.html
 
-include ($$PWD/../QJoysticks/QJoysticks.pri)
+include ($$PWD/QJoysticks/QJoysticks.pri)

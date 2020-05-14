@@ -38,10 +38,6 @@ private slots:
 
     void serial_rec_data_addr_parse();
 
-    void on_slct_btn_query_clicked();
-
-    void query_data();
-
     void on_mtr_spinBox_pushMotor_valueChanged(int arg1);
 
     void on_mtr_horSldr_pushMotor_valueChanged(int value);
@@ -61,8 +57,6 @@ private slots:
     void on_posi_spinBox_massPosi_valueChanged(int arg1);
 
     void on_posi_horSldr_massPosi_valueChanged(int value);
-
-    void on_mtr_btn_default_clicked();
 
     void on_mtr_btn_load_clicked();
 
@@ -94,8 +88,6 @@ private slots:
 
     void on_mtr_btn_close_all_clicked();
 
-    void on_posi_btn_default_clicked();
-
     void on_posi_btn_load_clicked();
 
     void on_posi_btn_reset_clicked();
@@ -120,14 +112,11 @@ private slots:
 
     void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
 
-    void send_mtr_ctrl();
-
-    void joystick_ctrl();
+    void on_slct_btn_apply_clicked();
 
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
-    QTimer* m_query_timer;
     QMutex* m_mutex;
     QFile* logfile;
     QWebEngineView* m_webview;
@@ -137,24 +126,24 @@ private:
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];
-    uint8_t rec_flag = 0x00;
-    uint16_t rec_index = 0x00;
+    uint8_t rec_flag;
+    uint16_t rec_index;
     qreal push_motor_para;
     qreal head_steer_para;
     qreal pitch_steer_para;
 
     // timerEvent
-//    int m_query_timer;
     int push_mtr_timer;
     int head_steer_timer;
     int pitch_steer_timer;
     int BMap_timer;
-    int mtr_timer;
+    int send_mtr_para_timer;
 
     float longtitude;
     float latitude;
 
-    // int m_joystick_timer;
+    // current fish address
+    uint8_t current_fish;
 
     // current longtitude and latitude
     float curr_lng, curr_lat;
