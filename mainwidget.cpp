@@ -464,6 +464,9 @@ void MainWidget::serial_rec_data_process()
         ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));      
         ui->polav6_label_text_gps_head->setText(QString::number(polav6_data.gps_heading, 'f', 2));
         ui->polav6_label_text_mag_head->setText(QString::number(polav6_data.mag_heading, 'f', 2));
+        ui->polav6_label_text_gps_long->setText(QString::number(polav6_data.gps_long / 10000000.0, 'f', 2));
+        ui->polav6_label_text_gps_lat->setText(QString::number(polav6_data.gps_lat / 10000000.0, 'f', 2));
+
 
         // update current location in map(javascript)
         longtitude = polav6_data.longtitude / 10000000.0;
@@ -770,7 +773,7 @@ void MainWidget::record_file_init(QString flag)
 {
     QDateTime current_time = QDateTime::currentDateTime();
     QString file_name = current_time.toString("yyyy_MM_dd");
-    logfile = new QFile(tr("%1_%2_log.txt").arg(file_name).arg(flag));
+    logfile = new QFile(tr("E:/Code/FishUpper/log/%1_%2_log.txt").arg(file_name).arg(flag));
     if (!logfile->open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
         QMessageBox::critical(this, tr("Local record error, cannot open file"), tr("%1")
                               .arg(logfile->errorString()));
@@ -807,9 +810,9 @@ void MainWidget::local_record_stm32(Stm32_Data_Package stm32_data)
     QTextStream logout(logfile);
     QDateTime current_time = QDateTime::currentDateTime();
     logout << "[" << current_time.toString("yyyy-MM-dd hh:mm:ss") << "] " << "Deepth: " << stm32_data.deepth << "   " <<
-              "Temperature: " << stm32_data.temper << "   " << "Xsens_Roll" << stm32_data.roll << "   " <<
-              "Xsens_Pitch: " << stm32_data.pitch << "   " << "Xsens_yaw" << stm32_data.yaw << "   " <<
-              "Voltage: " << stm32_data.volt << "   " << "Current: " << stm32_data.curr << "   " <<
+              "Temperature: " << stm32_data.temper << "   " << "Xsens_Roll: " << stm32_data.roll << "   " <<
+              "Xsens_Pitch: " << stm32_data.pitch << "   " << "Xsens_yaw: " << stm32_data.yaw << "   " <<
+              "Voltage: " << stm32_data.volt * 9 << "   " << "Current: " << stm32_data.curr << "   " <<
               "pump_Position: " << stm32_data.pump_posi << "   " << "Mass_Position: " << stm32_data.mass_posi << "   " <<
               "Leak: " << stm32_data.leak << "   " << "Push_Motor: " << stm32_data.push_motor << "   " <<
               "Head_Steer: " << stm32_data.head_steer << "   " << "Pitch_Steer: " << stm32_data.pitch_steer << endl;
@@ -830,7 +833,7 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
     QTextStream logout(logfile);
     QDateTime current_time = QDateTime::currentDateTime();
     logout << "[" << current_time.toString("yyyy-MM-dd hh:mm:ss") << "] " << "Time: " << polav6_data.navi_time_ms << "   " <<
-              "Longtitude: " << polav6_data.longtitude << "   " << "Latitude: " << polav6_data.latitude << "   " <<
+              "Longtitude: " << polav6_data.longtitude / 10000000.0 << "   " << "Latitude: " << polav6_data.latitude / 10000000.0 << "   " <<
               "Height: " << polav6_data.height << "   " << "GPS_Heading: " << polav6_data.GPS_head << "  " <<
               "GPS_V: " << polav6_data.GPS_v << "   " << "Acc_x: " << polav6_data.acc_x << "   " <<
               "Acc_y: " << polav6_data.acc_y << "   " << "Acc_z: " << polav6_data.acc_z << "   " <<
@@ -838,8 +841,9 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
               "V Sky: " << polav6_data.v_sky << "   " << "Omg_x: " << polav6_data.omg_x << "   " <<
               "Omg_y: " << polav6_data.omg_y << "   " << "Omg_z: " << polav6_data.omg_z << "   " <<
               "Roll: " << polav6_data.roll << "   " << "Pitch: " << polav6_data.pitch << "   " <<
-              "yaw: " << polav6_data.yaw << "   " << "GPS_heading" << polav6_data.gps_heading << "   "<<
-              "Mag_heading" << polav6_data.mag_heading << endl;
+              "yaw: " << polav6_data.yaw << "   " << "GPS_heading: " << polav6_data.gps_heading << "   "<<
+              "Mag_heading: " << polav6_data.mag_heading << "GPS_longtitude: " << polav6_data.gps_long /  10000000.0 << "   "
+              "GPS_latitude: " << polav6_data.gps_lat /  10000000.0 << endl;
 }
 
 /**
@@ -854,13 +858,13 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
 **/
 void MainWidget::on_log_btn_apply_clicked()
 {
-    this->on_mtr_btn_load_clicked();
     if (ui->log_checkBox_local_record->isChecked()){
         local_record_flag = true;
     }
     else {
         local_record_flag = false;
     }
+    this->on_mtr_btn_load_clicked();
 }
 
 /**
@@ -1291,10 +1295,8 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
             switch (btn_index){
             case BRAKE_A:
                 ui->mtr_spinBox_pushMotor->setValue(500);
-                if (!send_mtr_para_timer) {
-                    ui->mtr_spinBox_pushMotor->setValue(400);
-                    this->on_mtr_btn_load_clicked();
-                }
+                ui->mtr_spinBox_pushMotor->setValue(400);
+                this->on_mtr_btn_load_clicked();
                 break;
             case EXIT_B:
                 this->on_js_btn_connect_clicked();
@@ -1343,8 +1345,9 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
                     para += 25;
                 ui->mtr_spinBox_pushMotor->setValue(para);
                 send_mtr_para_timer = startTimer(1000);
-
                 break;
+            case START:
+                this->on_mtr_btn_load_clicked();
             default:
                 break;
             }
@@ -1420,7 +1423,11 @@ void MainWidget::on_pushButton_clicked()
 //    static float angle = 15;
 //    m_compass->update_compass(angle);
 //    angle += 15;
-    this->connection_confirm(01);
+    //this->connection_confirm(01);
+    Stm32_Data_Package stm32_data;
+    record_file_init("stm32");
+    local_record_stm32(stm32_data);
+    record_file_close();
 }
 
 /**
@@ -1472,7 +1479,7 @@ void MainWidget::on_fmt_btn_execute_clicked()
 //    serial_write_data(&formation_frame.xor_check, 2);
 
      ui->mtr_checkBox_bbb_ctrl->setChecked(true);
-     this->on_mtr_btn_load_clicked();
+//     send_mtr_para_timer = startTimer(500);
 }
 
 /**
@@ -1532,5 +1539,9 @@ void MainWidget::on_slct_btn_apply_clicked()
     if (ui->slct_cmbx_fish->currentText() == "Fish3") {
         current_fish = FRAME_ADDR_FISH3;
         ui->comtst_label_text_current_fish->setText("Fish3");
+    }
+    if (ui->slct_cmbx_fish->currentText() == "BroadCast") {
+        current_fish = FRAME_ADDR_BOARDCAST;
+        ui->comtst_label_text_current_fish->setText("BroadCast");
     }
 }

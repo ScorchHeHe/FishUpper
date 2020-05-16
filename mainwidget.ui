@@ -71,7 +71,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="iconSize">
     <size>
@@ -572,7 +572,7 @@
        <item>
         <widget class="QCheckBox" name="mtr_checkBox_bbb_ctrl">
          <property name="text">
-          <string>BBB Ctr</string>
+          <string>BBB Ctrl</string>
          </property>
         </widget>
        </item>
@@ -1216,8 +1216,47 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
+       <item row="5" column="2">
+        <widget class="QLabel" name="polav6_label_roll">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Roll</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLabel" name="polav6_label_yaw">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Yaw</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="3">
         <widget class="QLabel" name="polav6_label_text_pitch">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QLabel" name="polav6_label_text_v_sky">
          <property name="text">
           <string>-</string>
          </property>
@@ -1230,174 +1269,6 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="4">
-        <widget class="QLabel" name="polav6_label_omg_y">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Omg_y</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="polav6_label_v_east">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>V_east</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLabel" name="polav6_label_text_height">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="QLabel" name="polav6_label_text_acc_x">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="polav6_label_text_v_east">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QLabel" name="polav6_label_pitch">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Pitch</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLabel" name="polav6_label_v_sky">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>V_sky</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="4">
-        <widget class="QLabel" name="polav6_label_omg_X">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Omg_x</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QLabel" name="polav6_label_text_yaw">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="5">
-        <widget class="QLabel" name="polav6_label_text_omg_y">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="5">
-        <widget class="QLabel" name="polav6_label_text_omg_x">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="polav6_label_head">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Heading</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="polav6_label_text_head">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="polav6_label_text_gps_v">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLabel" name="polav6_label_v_north">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>V_north</string>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="1">
         <widget class="QLabel" name="polav6_label_text_lat">
          <property name="text">
@@ -1405,8 +1276,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="polav6_label_acc_x">
+       <item row="6" column="4">
+        <widget class="QLabel" name="polav6_label_gps_long">
          <property name="font">
           <font>
            <family>Calibri</family>
@@ -1417,19 +1288,35 @@
           </font>
          </property>
          <property name="text">
-          <string>Acc_x</string>
+          <string>GPS_long</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="polav6_label_text_long">
+       <item row="6" column="0">
+        <widget class="QLabel" name="polav6_label_gps_head">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>GPS_heading</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="3">
+        <widget class="QLabel" name="polav6_label_text_mag_head">
          <property name="text">
           <string>-</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="polav6_label_text_navi_tim">
+       <item row="3" column="1">
+        <widget class="QLabel" name="polav6_label_text_long">
          <property name="text">
           <string>-</string>
          </property>
@@ -1451,15 +1338,8 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="5">
-        <widget class="QLabel" name="polav6_label_text_omg_z">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QLabel" name="polav6_label_yaw">
+       <item row="2" column="4">
+        <widget class="QLabel" name="polav6_label_acc_z">
          <property name="font">
           <font>
            <family>Calibri</family>
@@ -1470,7 +1350,78 @@
           </font>
          </property>
          <property name="text">
-          <string>Yaw</string>
+          <string>Acc_z</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="4">
+        <widget class="QLabel" name="polav6_label_omg_X">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Omg_x</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLabel" name="polav6_label_v_sky">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>V_sky</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLabel" name="polav6_label_acc_y">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Acc_y</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QLabel" name="polav6_label_pitch">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Pitch</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="5">
+        <widget class="QLabel" name="polav6_label_text_omg_x">
+         <property name="text">
+          <string>-</string>
          </property>
         </widget>
        </item>
@@ -1478,45 +1429,6 @@
         <widget class="QLabel" name="polav6_label_text_roll">
          <property name="text">
           <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="polav6_label_height">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Height</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QLabel" name="polav6_label_text_v_north">
-         <property name="text">
-          <string>-</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="polav6_label_gps_v">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>GPS_v</string>
          </property>
         </widget>
        </item>
@@ -1536,8 +1448,24 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
-        <widget class="QLabel" name="polav6_label_text_v_sky">
+       <item row="1" column="2">
+        <widget class="QLabel" name="polav6_label_v_north">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>V_north</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="polav6_label_text_v_east">
          <property name="text">
           <string>-</string>
          </property>
@@ -1559,24 +1487,15 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="4">
-        <widget class="QLabel" name="polav6_label_acc_y">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
+       <item row="5" column="1">
+        <widget class="QLabel" name="polav6_label_text_height">
          <property name="text">
-          <string>Acc_y</string>
+          <string>-</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="2">
-        <widget class="QLabel" name="polav6_label_roll">
+       <item row="0" column="2">
+        <widget class="QLabel" name="polav6_label_v_east">
          <property name="font">
           <font>
            <family>Calibri</family>
@@ -1587,7 +1506,97 @@
           </font>
          </property>
          <property name="text">
-          <string>Roll</string>
+          <string>V_east</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="polav6_label_text_gps_head">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QLabel" name="polav6_label_text_acc_x">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="polav6_label_text_head">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="polav6_label_height">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Height</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="polav6_label_acc_x">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Acc_x</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="5">
+        <widget class="QLabel" name="polav6_label_text_gps_long">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="5">
+        <widget class="QLabel" name="polav6_label_text_acc_z">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QLabel" name="polav6_label_text_yaw">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="polav6_label_gps_v">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>GPS_v</string>
          </property>
         </widget>
        </item>
@@ -1607,31 +1616,22 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="4">
-        <widget class="QLabel" name="polav6_label_acc_z">
-         <property name="font">
-          <font>
-           <family>Calibri</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Acc_z</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="5">
-        <widget class="QLabel" name="polav6_label_text_acc_z">
+       <item row="0" column="1">
+        <widget class="QLabel" name="polav6_label_text_navi_tim">
          <property name="text">
           <string>-</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="polav6_label_gps_head">
+       <item row="1" column="1">
+        <widget class="QLabel" name="polav6_label_text_gps_v">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="polav6_label_head">
          <property name="font">
           <font>
            <family>Calibri</family>
@@ -1642,7 +1642,44 @@
           </font>
          </property>
          <property name="text">
-          <string>GPS_heading</string>
+          <string>Heading</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="5">
+        <widget class="QLabel" name="polav6_label_text_omg_z">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="5">
+        <widget class="QLabel" name="polav6_label_text_omg_y">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="polav6_label_text_v_north">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="4">
+        <widget class="QLabel" name="polav6_label_omg_y">
+         <property name="font">
+          <font>
+           <family>Calibri</family>
+           <pointsize>12</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Omg_y</string>
          </property>
         </widget>
        </item>
@@ -1662,17 +1699,17 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="polav6_label_text_gps_head">
+       <item row="7" column="1">
+        <widget class="QLabel" name="polav6_label_text_gps_lat">
          <property name="text">
           <string>-</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="3">
-        <widget class="QLabel" name="polav6_label_text_mag_head">
+       <item row="7" column="0">
+        <widget class="QLabel" name="polav6_label_gps_lat">
          <property name="text">
-          <string>-</string>
+          <string>GPS_lat</string>
          </property>
         </widget>
        </item>
@@ -2333,6 +2370,11 @@ color: rgb(255, 0, 0);</string>
        <item>
         <property name="text">
          <string>Fish3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>BroadCast</string>
         </property>
        </item>
       </widget>
