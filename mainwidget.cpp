@@ -389,119 +389,117 @@ void MainWidget::serial_rec_data_process()
     Base_Frame base_frame;
     QString current_location_cmd;
     switch (rec_data[3]) {
-    // stm32 data
-    case FRAME_FUNC_STM32:
-        memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
-        ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 2));
-        ui->envir_label_text_temper->setText(QString::number(stm32_data.temper, 'f', 2));
-        ui->envir_label_text_volt->setText(QString::number(stm32_data.volt * 9.0, 'f', 3));
-        ui->envir_label_text_curr->setText(QString::number(stm32_data.curr, 'f', 3));
-        ui->xsens_label_text_roll->setText(QString::number(stm32_data.roll, 'f', 2));
-        ui->xsens_label_text_pitch->setText(QString::number(stm32_data.pitch, 'f', 2));
-        ui->xsens_label_text_yaw->setText(QString::number(stm32_data.yaw, 'f', 2));
-        ui->mtr_dsply_label_text_pumpPosi->setText(QString::number(stm32_data.pump_posi));
-        ui->mtr_dsply_label_text_massPosi->setText(QString::number(stm32_data.mass_posi));
-        ui->mtr_dsply_label_text_pushMotor->setText(QString::number(stm32_data.push_motor));
-        ui->mtr_dsply_label_text_headSteer->setText(QString::number(stm32_data.head_steer));
-        ui->mtr_dsply_label_text_pitchSteer->setText(QString::number(stm32_data.pitch_steer));
-        // front leak
-        if ((uint16_t)stm32_data.leak / 100){
-            ui->leak_tabel_text_front->setText("Leak");
-            ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:red");
-        }
-        else {
-            ui->leak_tabel_text_front->setText("Normal");
-            ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:green");
-        }
-        stm32_data.leak =(uint16_t)stm32_data.leak % 100;
-        // mid leak
-        if ((uint16_t)stm32_data.leak / 10){
-            ui->leak_tabel_text_mid->setText("Leak");
-            ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:red");
-        }
-        else {
-            ui->leak_tabel_text_mid->setText("Normal");
-            ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:green");
-        }
-        stm32_data.leak =(uint16_t)stm32_data.leak % 10;
-        // tail leak
-        if ((uint8_t)stm32_data.leak){
-            ui->leak_tabel_text_tail->setText("Leak");
-            ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:red");
-        }
-        else if (!(uint8_t)stm32_data.leak){
-            ui->leak_tabel_text_tail->setText("Normal");
-            ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
-        }
-        // record stm32 data
-        if (local_record_flag){
-            record_file_init("stm32");
-            local_record_stm32(stm32_data);
-            record_file_close();
-        }
-        this->connection_confirm(rec_data[0]);
-        break;
-    // pola v6 data
-    case FRAME_FUNC_POLAV6:
-        memcpy(&polav6_data, &rec_data[4], sizeof(polav6_data));
-        ui->polav6_label_text_navi_tim->setText(QString::number(polav6_data.navi_time_ms));
-        ui->polav6_label_text_long->setText(QString::number(polav6_data.longtitude / 10000000.0, 'f', 6));
-        ui->polav6_label_text_lat->setText(QString::number(polav6_data.latitude / 10000000.0, 'f', 6));
-        ui->polav6_label_text_height->setText(QString::number(polav6_data.height, 'f', 2));
-        ui->polav6_label_text_head->setText(QString::number(polav6_data.GPS_head, 'f', 2));
-        ui->polav6_label_text_gps_v->setText(QString::number(polav6_data.GPS_v, 'f', 2));
-        ui->polav6_label_text_acc_x->setText(QString::number(polav6_data.acc_x, 'f', 2));
-        ui->polav6_label_text_acc_y->setText(QString::number(polav6_data.acc_y, 'f', 2));
-        ui->polav6_label_text_acc_z->setText(QString::number(polav6_data.acc_z, 'f', 2));
-        ui->polav6_label_text_v_east->setText(QString::number(polav6_data.v_east, 'f', 2));
-        ui->polav6_label_text_v_north->setText(QString::number(polav6_data.v_north, 'f', 2));
-        ui->polav6_label_text_v_sky->setText(QString::number(polav6_data.v_sky, 'f', 2));
-        ui->polav6_label_text_omg_x->setText(QString::number(polav6_data.omg_x, 'f', 2));
-        ui->polav6_label_text_omg_y->setText(QString::number(polav6_data.omg_y, 'f', 2));
-        ui->polav6_label_text_omg_z->setText(QString::number(polav6_data.omg_z, 'f', 2));
-        ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
-        ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
-        ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));      
-        ui->polav6_label_text_gps_head->setText(QString::number(polav6_data.gps_heading, 'f', 2));
-        ui->polav6_label_text_mag_head->setText(QString::number(polav6_data.mag_heading, 'f', 2));
-        ui->polav6_label_text_gps_long->setText(QString::number(polav6_data.gps_long / 10000000.0, 'f', 2));
-        ui->polav6_label_text_gps_lat->setText(QString::number(polav6_data.gps_lat / 10000000.0, 'f', 2));
+        // stm32 data
+        case FRAME_FUNC_STM32:
+            memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
+            ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 2));
+            ui->envir_label_text_temper->setText(QString::number(stm32_data.temper, 'f', 2));
+            ui->envir_label_text_volt->setText(QString::number(stm32_data.volt * 9.0, 'f', 3));
+            ui->envir_label_text_curr->setText(QString::number((2.54 - stm32_data.curr) * 10, 'f', 3));
+            ui->xsens_label_text_roll->setText(QString::number(stm32_data.roll, 'f', 2));
+            ui->xsens_label_text_pitch->setText(QString::number(stm32_data.pitch, 'f', 2));
+            ui->xsens_label_text_yaw->setText(QString::number(stm32_data.yaw, 'f', 2));
+            ui->mtr_dsply_label_text_pumpPosi->setText(QString::number(stm32_data.pump_posi));
+            ui->mtr_dsply_label_text_massPosi->setText(QString::number(stm32_data.mass_posi));
+            ui->mtr_dsply_label_text_pushMotor->setText(QString::number(stm32_data.push_motor));
+            ui->mtr_dsply_label_text_headSteer->setText(QString::number(stm32_data.head_steer));
+            ui->mtr_dsply_label_text_pitchSteer->setText(QString::number(stm32_data.pitch_steer));
+            // front leak
+            if ((uint16_t)stm32_data.leak / 100){
+                ui->leak_tabel_text_front->setText("Leak");
+                ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:red");
+            }
+            else {
+                ui->leak_tabel_text_front->setText("Normal");
+                ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:green");
+            }
+            stm32_data.leak =(uint16_t)stm32_data.leak % 100;
+            // mid leak
+            if ((uint16_t)stm32_data.leak / 10){
+                ui->leak_tabel_text_mid->setText("Leak");
+                ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:red");
+            }
+            else {
+                ui->leak_tabel_text_mid->setText("Normal");
+                ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:green");
+            }
+            stm32_data.leak =(uint16_t)stm32_data.leak % 10;
+            // tail leak
+            if ((uint8_t)stm32_data.leak){
+                ui->leak_tabel_text_tail->setText("Leak");
+                ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:red");
+            }
+            else if (!(uint8_t)stm32_data.leak){
+                ui->leak_tabel_text_tail->setText("Normal");
+                ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
+            }
+            // record stm32 data
+            if (local_record_flag){
+                record_file_init("stm32");
+                local_record_stm32(stm32_data);
+                record_file_close();
+            }
+            this->connection_confirm(rec_data[0]);
+            break;
+        // pola v6 data
+        case FRAME_FUNC_POLAV6:
+            memcpy(&polav6_data, &rec_data[4], sizeof(polav6_data));
+            ui->polav6_label_text_navi_tim->setText(QString::number(polav6_data.navi_time_ms));
+            ui->polav6_label_text_long->setText(QString::number(polav6_data.longtitude / 10000000.0, 'f', 6));
+            ui->polav6_label_text_lat->setText(QString::number(polav6_data.latitude / 10000000.0, 'f', 6));
+            ui->polav6_label_text_height->setText(QString::number(polav6_data.height, 'f', 2));
+            ui->polav6_label_text_head->setText(QString::number(polav6_data.GPS_head, 'f', 2));
+            ui->polav6_label_text_gps_v->setText(QString::number(polav6_data.GPS_v, 'f', 2));
+            ui->polav6_label_text_acc_x->setText(QString::number(polav6_data.acc_x, 'f', 2));
+            ui->polav6_label_text_acc_y->setText(QString::number(polav6_data.acc_y, 'f', 2));
+            ui->polav6_label_text_acc_z->setText(QString::number(polav6_data.acc_z, 'f', 2));
+            ui->polav6_label_text_v_east->setText(QString::number(polav6_data.v_east, 'f', 2));
+            ui->polav6_label_text_v_north->setText(QString::number(polav6_data.v_north, 'f', 2));
+            ui->polav6_label_text_v_sky->setText(QString::number(polav6_data.v_sky, 'f', 2));
+            ui->polav6_label_text_omg_x->setText(QString::number(polav6_data.omg_x, 'f', 2));
+            ui->polav6_label_text_omg_y->setText(QString::number(polav6_data.omg_y, 'f', 2));
+            ui->polav6_label_text_omg_z->setText(QString::number(polav6_data.omg_z, 'f', 2));
+            ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
+            ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
+            ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));
+            ui->polav6_label_text_mag_head->setText(QString::number(polav6_data.mag_heading, 'f', 2));
+            ui->polav6_label_text_gps_long->setText(QString::number(polav6_data.gps_long / 10000000.0, 'f', 2));
+            ui->polav6_label_text_gps_lat->setText(QString::number(polav6_data.gps_lat / 10000000.0, 'f', 2));
 
 
-        // update current location in map(javascript)
-        longtitude = polav6_data.longtitude / 10000000.0;
-        latitude = polav6_data.latitude / 10000000.0;
+            // update current location in map(javascript)
+            longtitude = polav6_data.longtitude / 10000000.0;
+            latitude = polav6_data.latitude / 10000000.0;
 
-        // record polav6 data
-        if (local_record_flag){
-            record_file_init("polav6");
-            local_record_polav6(polav6_data);
-            record_file_close();
-        }
+            // record polav6 data
+            if (local_record_flag){
+                record_file_init("polav6");
+                local_record_polav6(polav6_data);
+                record_file_close();
+            }
 
-        // compass display
-        m_compass->update_compass(polav6_data.mag_heading);
-        break;
-    // motor feedback
-    case FRAME_FUNC_MOTOR:
-        send_mtr_para_timer = 0;
-        break;
-    // connection confirm
-    case FRAME_FUNC_CONNECTION:
-        memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
-        this->connection_confirm(rec_data[0]);
-        break;
-    case COM_TEST:
-        ++rec_pack_count;
-        ui->comtst_label_text_rec->setText(QString::number(rec_pack_count));
-        loss = (send_pack_count - rec_pack_count) / send_pack_count;
-        ui->comtst_label_text_loss->setText(QString::number(loss, 'f', 2));
-        break;
-    default:
-        break;
+            // compass display
+            m_compass->update_compass(polav6_data.mag_heading);
+            break;
+        // motor feedback
+        case FRAME_FUNC_MOTOR:
+            send_mtr_para_timer = 0;
+            break;
+        // connection confirm
+        case FRAME_FUNC_CONNECTION:
+            memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
+            this->connection_confirm(rec_data[0]);
+            break;
+        case COM_TEST:
+            ++rec_pack_count;
+            ui->comtst_label_text_rec->setText(QString::number(rec_pack_count));
+            loss = (send_pack_count - rec_pack_count) / send_pack_count;
+            ui->comtst_label_text_loss->setText(QString::number(loss, 'f', 2));
+            break;
+        default:
+            break;
     }
 }
-
 /**
  * Function name: connection_confirm(uint8_t address)
  * Brief: Send connection confirm frame
@@ -812,7 +810,7 @@ void MainWidget::local_record_stm32(Stm32_Data_Package stm32_data)
     logout << "[" << current_time.toString("yyyy-MM-dd hh:mm:ss") << "] " << "Deepth: " << stm32_data.deepth << "   " <<
               "Temperature: " << stm32_data.temper << "   " << "Xsens_Roll: " << stm32_data.roll << "   " <<
               "Xsens_Pitch: " << stm32_data.pitch << "   " << "Xsens_yaw: " << stm32_data.yaw << "   " <<
-              "Voltage: " << stm32_data.volt * 9 << "   " << "Current: " << stm32_data.curr << "   " <<
+              "Voltage: " << stm32_data.volt * 9 << "   " << "Current: " << (2.54 - stm32_data.curr) * 10 << "   " <<
               "pump_Position: " << stm32_data.pump_posi << "   " << "Mass_Position: " << stm32_data.mass_posi << "   " <<
               "Leak: " << stm32_data.leak << "   " << "Push_Motor: " << stm32_data.push_motor << "   " <<
               "Head_Steer: " << stm32_data.head_steer << "   " << "Pitch_Steer: " << stm32_data.pitch_steer << endl;
@@ -841,8 +839,8 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
               "V Sky: " << polav6_data.v_sky << "   " << "Omg_x: " << polav6_data.omg_x << "   " <<
               "Omg_y: " << polav6_data.omg_y << "   " << "Omg_z: " << polav6_data.omg_z << "   " <<
               "Roll: " << polav6_data.roll << "   " << "Pitch: " << polav6_data.pitch << "   " <<
-              "yaw: " << polav6_data.yaw << "   " << "GPS_heading: " << polav6_data.gps_heading << "   "<<
-              "Mag_heading: " << polav6_data.mag_heading << "GPS_longtitude: " << polav6_data.gps_long /  10000000.0 << "   "
+              "yaw: " << polav6_data.yaw << "   " << "Mag_heading: " << polav6_data.mag_heading <<
+              "GPS_longtitude: " << polav6_data.gps_long /  10000000.0 << "   "
               "GPS_latitude: " << polav6_data.gps_lat /  10000000.0 << endl;
 }
 
@@ -1330,7 +1328,7 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
                 else if (para == 500 && ui->mtr_checkBox_reverse->isChecked())
                     para -= 25;
                 ui->mtr_spinBox_pushMotor->setValue(para);
-                send_mtr_para_timer = startTimer(1000);
+                send_mtr_para_timer=startTimer(500);
                 break;
             case RB:
                 if (para >= 950)
@@ -1344,7 +1342,7 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
                 else if (para == 500 && !ui->mtr_checkBox_reverse->isChecked())
                     para += 25;
                 ui->mtr_spinBox_pushMotor->setValue(para);
-                send_mtr_para_timer = startTimer(1000);
+                send_mtr_para_timer=startTimer(500);
                 break;
             case START:
                 this->on_mtr_btn_load_clicked();
@@ -1479,7 +1477,7 @@ void MainWidget::on_fmt_btn_execute_clicked()
 //    serial_write_data(&formation_frame.xor_check, 2);
 
      ui->mtr_checkBox_bbb_ctrl->setChecked(true);
-//     send_mtr_para_timer = startTimer(500);
+     // send_mtr_para_timer = startTimer(200);
 }
 
 /**
@@ -1544,4 +1542,52 @@ void MainWidget::on_slct_btn_apply_clicked()
         current_fish = FRAME_ADDR_BOARDCAST;
         ui->comtst_label_text_current_fish->setText("BroadCast");
     }
+    reset_data_display();
+}
+
+void MainWidget::reset_data_display()
+{
+    ui->envir_label_text_curr->setText("-");
+    ui->envir_label_text_volt->setText("-");
+    ui->envir_label_text_deepth->setText("-");
+    ui->envir_label_text_temper->setText("-");
+
+    ui->xsens_label_text_yaw->setText("-");
+    ui->xsens_label_text_roll->setText("-");
+    ui->xsens_label_text_pitch->setText("-");
+
+    ui->leak_tabel_text_front->setText("Normal");
+    ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:green");
+    ui->leak_tabel_text_mid->setText("Normal");
+    ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:green");
+    ui->leak_tabel_text_tail->setText("Normal");
+    ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
+
+    ui->mtr_dsply_label_text_massPosi->setText("-");
+    ui->mtr_dsply_label_text_pumpPosi->setText("-");
+    ui->mtr_dsply_label_text_pushMotor->setText("-");
+    ui->mtr_dsply_label_text_pitchSteer->setText("-");
+    ui->mtr_dsply_label_text_headSteer->setText("-");
+
+    ui->polav6_label_text_navi_tim->setText("-");
+    ui->polav6_label_text_gps_v->setText("-");
+    ui->polav6_label_text_head->setText("-");
+    ui->polav6_label_text_long->setText("-");
+    ui->polav6_label_text_lat->setText("-");
+    ui->polav6_label_text_height->setText("-");
+    ui->polav6_label_text_mag_head->setText("-");
+    ui->polav6_label_text_v_east->setText("-");
+    ui->polav6_label_text_v_north->setText("-");
+    ui->polav6_label_text_v_sky->setText("-");
+    ui->polav6_label_text_pitch->setText("-");
+    ui->polav6_label_text_yaw->setText("-");
+    ui->polav6_label_text_roll->setText("-");
+    ui->polav6_label_text_gps_long->setText("-");
+    ui->polav6_label_text_gps_lat->setText("-");
+    ui->polav6_label_text_acc_x->setText("-");
+    ui->polav6_label_text_acc_y->setText("-");
+    ui->polav6_label_text_acc_z->setText("-");
+    ui->polav6_label_text_omg_x->setText("-");
+    ui->polav6_label_text_omg_y->setText("-");
+    ui->polav6_label_text_omg_z->setText("-");
 }

@@ -120,7 +120,6 @@ typedef struct{
     float pitch;
     float yaw;
     float roll;
-    float gps_heading;
     float mag_heading;
     float gps_long;
     float gps_lat;

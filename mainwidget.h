@@ -182,8 +182,6 @@ private:
 
     void serial_write_data(uint8_t *start_byte, uint8_t length);
 
-    uint8_t get_fish_address();
-
     void record_file_init(QString flag);
 
     void record_file_close();
@@ -196,6 +194,6 @@ private:
 
     void init_tabwidget_locs();
 
-
+    void reset_data_display();
 };
 #endif // MAINWIDGET_H
