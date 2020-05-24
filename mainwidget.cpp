@@ -622,7 +622,12 @@ void MainWidget::on_mtr_btn_load_clicked()
 
     Motor_Para_Package motor_para;
     Motor_Frame motor_frame;
-    motor_para.push_motor = ui->mtr_spinBox_pushMotor->value();
+    if (current_fish == FRAME_ADDR_FISH2){
+        motor_para.push_motor = 1000 - ui->mtr_spinBox_pushMotor->value();
+    }
+    else {
+        motor_para.push_motor = ui->mtr_spinBox_pushMotor->value();
+    }
     motor_para.head_steer = ui->mtr_spinBox_pitchSteer->value();
     motor_para.pitch_steer = ui->mtr_spinBox_headSteer->value();
     motor_para.status_ctrl = 0x01;
@@ -830,8 +835,9 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
 {
     QTextStream logout(logfile);
     QDateTime current_time = QDateTime::currentDateTime();
+    logout.setRealNumberPrecision(9);
     logout << "[" << current_time.toString("yyyy-MM-dd hh:mm:ss") << "] " << "Time: " << polav6_data.navi_time_ms << "   " <<
-              "Longtitude: " << polav6_data.longtitude / 10000000.0 << "   " << "Latitude: " << polav6_data.latitude / 10000000.0 << "   " <<
+              "Longtitude: " << polav6_data.longtitude /  10000000.0 << "   " << "Latitude: " << polav6_data.latitude /  10000000.0 << "   " <<
               "Height: " << polav6_data.height << "   " << "GPS_Heading: " << polav6_data.GPS_head << "  " <<
               "GPS_V: " << polav6_data.GPS_v << "   " << "Acc_x: " << polav6_data.acc_x << "   " <<
               "Acc_y: " << polav6_data.acc_y << "   " << "Acc_z: " << polav6_data.acc_z << "   " <<
@@ -1047,6 +1053,9 @@ void MainWidget::on_mtr_btn_close_all_clicked()
     ui->mtr_spinBox_pushMotor->setValue(500);
     ui->mtr_spinBox_headSteer->setValue(1500);
     ui->mtr_spinBox_pitchSteer->setValue(1500);
+    if (current_fish == FRAME_ADDR_FISH2) {
+        ui->mtr_spinBox_headSteer->setValue(1410);
+    }
     this->on_mtr_btn_load_clicked();
 }
 
@@ -1292,19 +1301,22 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
         if (m_joystick->joystickExists(js_index)){
             switch (btn_index){
             case BRAKE_A:
-                ui->mtr_spinBox_pushMotor->setValue(500);
-                ui->mtr_spinBox_pushMotor->setValue(400);
-                this->on_mtr_btn_load_clicked();
+                if (ui->slct_cmbx_fish->currentIndex() == 0) {
+                    ui->slct_cmbx_fish->setCurrentIndex(1);
+                    current_fish = FRAME_ADDR_FISH2;
+                }
+                else {
+                    ui->slct_cmbx_fish->setCurrentIndex(0);
+                    current_fish = FRAME_ADDR_FISH1;
+                }
+                this->on_slct_btn_apply_clicked();
                 break;
             case EXIT_B:
                 this->on_js_btn_connect_clicked();
                 break;
             case RESET_X:
                 // set motor control parameters to default value
-                ui->mtr_spinBox_pushMotor->setValue(500);
-                ui->mtr_spinBox_headSteer->setValue(1500);
-                ui->mtr_spinBox_pitchSteer->setValue(1500);
-                this->on_mtr_btn_load_clicked();
+                this->on_mtr_btn_close_all_clicked();
                 break;
             case SHIFT_Y:
                 if (ui->mtr_spinBox_pushMotor->value() == 500) {
@@ -1421,10 +1433,11 @@ void MainWidget::on_pushButton_clicked()
 //    static float angle = 15;
 //    m_compass->update_compass(angle);
 //    angle += 15;
-    //this->connection_confirm(01);
-    Stm32_Data_Package stm32_data;
-    record_file_init("stm32");
-    local_record_stm32(stm32_data);
+    PolaV6_Data_Package polav6_data;
+    polav6_data.longtitude = 120.1234567;
+    polav6_data.latitude = 30.1234567;
+    record_file_init("pola_v6");
+    local_record_polav6(polav6_data);
     record_file_close();
 }
 
