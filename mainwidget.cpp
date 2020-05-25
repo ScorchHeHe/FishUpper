@@ -95,7 +95,9 @@ MainWidget::MainWidget(QWidget *parent)
     BMap_timer = 0;
     send_mtr_para_timer = 0;
 
-    current_fish = FRAME_ADDR_FISH1;
+    mtr_ctrl_cmd_counter = 0;
+
+    current_fish = FRAME_ADDR_FISH2;
 
 }
 
@@ -248,28 +250,51 @@ void MainWidget::serial_rec_data_addr_parse()
         // address byte
         switch (FrameGet(buffer[i])) {
         case FRAME_ADDR_FISH1:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish1"){
+            if (current_fish == FRAME_ADDR_FISH1){
                 this->serial_rec_data_process();
             }
+            this->connection_confirm(rec_data[0]);
+            this->record_file("Slave1");
             break;
         case FRAME_ADDR_FISH2:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish2"){
+            if (current_fish == FRAME_ADDR_FISH2){
                 this->serial_rec_data_process();
             }
+            this->connection_confirm(rec_data[0]);
+            this->record_file("Master");
             break;
         case FRAME_ADDR_FISH3:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish3"){
+            if (current_fish == FRAME_ADDR_FISH3){
                 this->serial_rec_data_process();
             }
+            this->connection_confirm(rec_data[0]);
+            this->record_file("Slave2");
             break;
         case 0x00:
             break;
         default:
             qDebug() << "Address process error";
             break;
+        }
+    }
+}
+
+void MainWidget::record_file(QString fish)
+{
+    if (local_record_flag) {
+        if (FRAME_FUNC_STM32 == rec_data[3]) {
+            Stm32_Data_Package stm32_data;
+            memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
+            record_file_init("stm32", fish);
+            local_record_stm32(stm32_data);
+            record_file_close();
+        }
+        if (FRAME_FUNC_POLAV6 == rec_data[3]) {
+            PolaV6_Data_Package polav6_data;
+            memcpy(&polav6_data, &rec_data[4], sizeof(polav6_data));
+            record_file_init("polav6", fish);
+            local_record_polav6(polav6_data);
+            record_file_close();
         }
     }
 }
@@ -434,12 +459,12 @@ void MainWidget::serial_rec_data_process()
                 ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
             }
             // record stm32 data
-            if (local_record_flag){
-                record_file_init("stm32");
-                local_record_stm32(stm32_data);
-                record_file_close();
-            }
-            this->connection_confirm(rec_data[0]);
+//            if (local_record_flag){
+//                record_file_init("stm32");
+//                local_record_stm32(stm32_data);
+//                record_file_close();
+//            }
+//            this->connection_confirm(rec_data[0]);
             break;
         // pola v6 data
         case FRAME_FUNC_POLAV6:
@@ -471,12 +496,12 @@ void MainWidget::serial_rec_data_process()
             longtitude = polav6_data.longtitude / 10000000.0;
             latitude = polav6_data.latitude / 10000000.0;
 
-            // record polav6 data
-            if (local_record_flag){
-                record_file_init("polav6");
-                local_record_polav6(polav6_data);
-                record_file_close();
-            }
+//            // record polav6 data
+//            if (local_record_flag){
+//                record_file_init("polav6");
+//                local_record_polav6(polav6_data);
+//                record_file_close();
+//            }
 
             // compass display
             m_compass->update_compass(polav6_data.mag_heading);
@@ -620,14 +645,15 @@ void MainWidget::on_mtr_btn_load_clicked()
     if (!send_mtr_para_timer)
         send_mtr_para_timer = startTimer(1000);
 
+    if (mtr_ctrl_cmd_counter == 3) {
+        send_mtr_para_timer = 0;
+        mtr_ctrl_cmd_counter = 0;
+    }
+    ++mtr_ctrl_cmd_counter;
+
     Motor_Para_Package motor_para;
     Motor_Frame motor_frame;
-    if (current_fish == FRAME_ADDR_FISH2){
-        motor_para.push_motor = 1000 - ui->mtr_spinBox_pushMotor->value();
-    }
-    else {
-        motor_para.push_motor = ui->mtr_spinBox_pushMotor->value();
-    }
+    motor_para.push_motor = ui->mtr_spinBox_pushMotor->value();
     motor_para.head_steer = ui->mtr_spinBox_pitchSteer->value();
     motor_para.pitch_steer = ui->mtr_spinBox_headSteer->value();
     motor_para.status_ctrl = 0x01;
@@ -772,11 +798,11 @@ void MainWidget::on_pwr_btn_apply_clicked()
  * See:
  * Date: 2020.1.10
 **/
-void MainWidget::record_file_init(QString flag)
+void MainWidget::record_file_init(QString flag, QString fish)
 {
     QDateTime current_time = QDateTime::currentDateTime();
     QString file_name = current_time.toString("yyyy_MM_dd");
-    logfile = new QFile(tr("E:/Code/FishUpper/log/%1_%2_log.txt").arg(file_name).arg(flag));
+    logfile = new QFile(tr("E:/Code/FishUpper/log/%1_%2_%3_log.txt").arg(file_name).arg(flag).arg(fish));
     if (!logfile->open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
         QMessageBox::critical(this, tr("Local record error, cannot open file"), tr("%1")
                               .arg(logfile->errorString()));
@@ -1053,9 +1079,6 @@ void MainWidget::on_mtr_btn_close_all_clicked()
     ui->mtr_spinBox_pushMotor->setValue(500);
     ui->mtr_spinBox_headSteer->setValue(1500);
     ui->mtr_spinBox_pitchSteer->setValue(1500);
-    if (current_fish == FRAME_ADDR_FISH2) {
-        ui->mtr_spinBox_headSteer->setValue(1410);
-    }
     this->on_mtr_btn_load_clicked();
 }
 
@@ -1263,8 +1286,6 @@ void MainWidget::on_js_btn_connect_clicked()
 **/
 void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
 {
-//    if (!send_mtr_para_timer)
-//        send_mtr_para_timer = startTimer(1000);
     if (joystick_connect_state){
         if (m_joystick->joystickExists(js_index)){
             switch (axis_index){
@@ -1301,15 +1322,7 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
         if (m_joystick->joystickExists(js_index)){
             switch (btn_index){
             case BRAKE_A:
-                if (ui->slct_cmbx_fish->currentIndex() == 0) {
-                    ui->slct_cmbx_fish->setCurrentIndex(1);
-                    current_fish = FRAME_ADDR_FISH2;
-                }
-                else {
-                    ui->slct_cmbx_fish->setCurrentIndex(0);
-                    current_fish = FRAME_ADDR_FISH1;
-                }
-                this->on_slct_btn_apply_clicked();
+
                 break;
             case EXIT_B:
                 this->on_js_btn_connect_clicked();
@@ -1340,7 +1353,7 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
                 else if (para == 500 && ui->mtr_checkBox_reverse->isChecked())
                     para -= 25;
                 ui->mtr_spinBox_pushMotor->setValue(para);
-                send_mtr_para_timer=startTimer(500);
+                send_mtr_para_timer=startTimer(1000);
                 break;
             case RB:
                 if (para >= 950)
@@ -1354,7 +1367,7 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
                 else if (para == 500 && !ui->mtr_checkBox_reverse->isChecked())
                     para += 25;
                 ui->mtr_spinBox_pushMotor->setValue(para);
-                send_mtr_para_timer=startTimer(500);
+                send_mtr_para_timer=startTimer(1000);
                 break;
             case START:
                 this->on_mtr_btn_load_clicked();
@@ -1430,15 +1443,9 @@ void MainWidget::com_test()
 
 void MainWidget::on_pushButton_clicked()
 {
-//    static float angle = 15;
-//    m_compass->update_compass(angle);
-//    angle += 15;
-    PolaV6_Data_Package polav6_data;
-    polav6_data.longtitude = 120.1234567;
-    polav6_data.latitude = 30.1234567;
-    record_file_init("pola_v6");
-    local_record_polav6(polav6_data);
-    record_file_close();
+    static float angle = 15;
+    m_compass->update_compass(angle);
+    angle += 15;
 }
 
 /**
@@ -1490,7 +1497,6 @@ void MainWidget::on_fmt_btn_execute_clicked()
 //    serial_write_data(&formation_frame.xor_check, 2);
 
      ui->mtr_checkBox_bbb_ctrl->setChecked(true);
-     // send_mtr_para_timer = startTimer(200);
 }
 
 /**
@@ -1507,7 +1513,7 @@ void MainWidget::timerEvent(QTimerEvent *event)
 {
     // send motion control para
     if (event->timerId() == send_mtr_para_timer) {
-         this->on_mtr_btn_load_clicked();
+        this->on_mtr_btn_load_clicked();
     }
 
     // joystick push motor ctrl
@@ -1539,13 +1545,13 @@ void MainWidget::timerEvent(QTimerEvent *event)
 
 void MainWidget::on_slct_btn_apply_clicked()
 {
-    if (ui->slct_cmbx_fish->currentText() == "Fish1") {
+    if (ui->slct_cmbx_fish->currentText() == "Slave1") {
         current_fish = FRAME_ADDR_FISH1;
-        ui->comtst_label_text_current_fish->setText("Fish1");
+        ui->comtst_label_text_current_fish->setText("Slave1");
     }
-    if (ui->slct_cmbx_fish->currentText() == "Fish2") {
+    if (ui->slct_cmbx_fish->currentText() == "Master") {
         current_fish = FRAME_ADDR_FISH2;
-        ui->comtst_label_text_current_fish->setText("Fish2");
+        ui->comtst_label_text_current_fish->setText("Master");
     }
     if (ui->slct_cmbx_fish->currentText() == "Fish3") {
         current_fish = FRAME_ADDR_FISH3;

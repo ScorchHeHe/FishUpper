@@ -1589,7 +1589,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Heading</string>
+          <string>GPS_heading</string>
          </property>
         </widget>
        </item>
@@ -2313,7 +2313,7 @@ color: rgb(255, 0, 0);</string>
     </rect>
    </property>
    <property name="title">
-    <string>Selection</string>
+    <string>Fish Selection</string>
    </property>
    <widget class="QWidget" name="gridLayoutWidget_6">
     <property name="geometry">
@@ -2336,17 +2336,17 @@ color: rgb(255, 0, 0);</string>
       <widget class="QComboBox" name="slct_cmbx_fish">
        <item>
         <property name="text">
-         <string>Fish1</string>
+         <string>Master</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Fish2</string>
+         <string>Slave1</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Fish3</string>
+         <string>Slave2</string>
         </property>
        </item>
        <item>
@@ -2366,7 +2366,7 @@ color: rgb(255, 0, 0);</string>
      <item row="1" column="1">
       <widget class="QLabel" name="comtst_label_text_current_fish">
        <property name="text">
-        <string>Fish1</string>
+        <string>Master</string>
        </property>
       </widget>
      </item>
@@ -2463,7 +2463,7 @@ color: rgb(255, 0, 0);</string>
     </rect>
    </property>
    <property name="title">
-    <string>JoyStick</string>
+    <string>JoyStick Connection</string>
    </property>
    <widget class="QWidget" name="gridLayoutWidget_9">
     <property name="geometry">

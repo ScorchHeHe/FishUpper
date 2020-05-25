@@ -168,6 +168,8 @@ private:
     uint8_t rec_pack_count;
     double loss;
 
+    uint8_t mtr_ctrl_cmd_counter;
+
     void scan_serialport();
 
     void scan_joysticks();
@@ -182,7 +184,7 @@ private:
 
     void serial_write_data(uint8_t *start_byte, uint8_t length);
 
-    void record_file_init(QString flag);
+    void record_file_init(QString flag, QString fish);
 
     void record_file_close();
 
@@ -195,5 +197,7 @@ private:
     void init_tabwidget_locs();
 
     void reset_data_display();
+
+    void record_file(QString fish);
 };
 #endif // MAINWIDGET_H
