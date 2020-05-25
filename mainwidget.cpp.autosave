@@ -467,14 +467,8 @@ void MainWidget::serial_rec_data_process()
                 ui->leak_tabel_text_tail->setText("Normal");
                 ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
             }
-            // record stm32 data
-//            if (local_record_flag){
-//                record_file_init("stm32");
-//                local_record_stm32(stm32_data);
-//                record_file_close();
-//            }
-//            this->connection_confirm(rec_data[0]);
-            if (stm32_data.volt > 24) {
+            
+            if (stm32_data.volt >= 24) {
                 ui->slct_prgsBar_battery->setValue(100);
 
             }

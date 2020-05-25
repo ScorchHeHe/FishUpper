@@ -232,7 +232,7 @@ color: rgb(255, 0, 0);</string>
   <widget class="QGroupBox" name="groupBox_log">
    <property name="geometry">
     <rect>
-     <x>1100</x>
+     <x>1120</x>
      <y>480</y>
      <width>181</width>
      <height>101</height>
@@ -244,10 +244,10 @@ color: rgb(255, 0, 0);</string>
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>20</y>
+      <x>20</x>
+      <y>30</y>
       <width>161</width>
-      <height>69</height>
+      <height>61</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -607,7 +607,7 @@ color: rgb(255, 0, 0);</string>
     <rect>
      <x>720</x>
      <y>330</y>
-     <width>181</width>
+     <width>191</width>
      <height>251</height>
     </rect>
    </property>
@@ -641,7 +641,7 @@ color: rgb(255, 0, 0);</string>
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>161</width>
+      <width>171</width>
       <height>191</height>
      </rect>
     </property>
@@ -1890,9 +1890,9 @@ color: rgb(255, 0, 0);</string>
   <widget class="QGroupBox" name="groupBox_gldr">
    <property name="geometry">
     <rect>
-     <x>910</x>
+     <x>920</x>
      <y>330</y>
-     <width>181</width>
+     <width>191</width>
      <height>251</height>
     </rect>
    </property>
@@ -1929,7 +1929,7 @@ color: rgb(255, 0, 0);</string>
   <widget class="QGroupBox" name="groupBox_power">
    <property name="geometry">
     <rect>
-     <x>1100</x>
+     <x>1120</x>
      <y>330</y>
      <width>181</width>
      <height>141</height>
@@ -1944,7 +1944,7 @@ color: rgb(255, 0, 0);</string>
       <x>10</x>
       <y>30</y>
       <width>161</width>
-      <height>83</height>
+      <height>86</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_8">
@@ -2041,9 +2041,9 @@ color: rgb(255, 0, 0);</string>
   <widget class="QGroupBox" name="groupBox_xsens">
    <property name="geometry">
     <rect>
-     <x>1290</x>
+     <x>1310</x>
      <y>330</y>
-     <width>141</width>
+     <width>131</width>
      <height>141</height>
     </rect>
    </property>
@@ -2064,7 +2064,7 @@ color: rgb(255, 0, 0);</string>
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>121</width>
+      <width>111</width>
       <height>101</height>
      </rect>
     </property>
@@ -2144,9 +2144,9 @@ color: rgb(255, 0, 0);</string>
   <widget class="QGroupBox" name="groupBox_leak">
    <property name="geometry">
     <rect>
-     <x>1440</x>
+     <x>1450</x>
      <y>330</y>
-     <width>151</width>
+     <width>141</width>
      <height>141</height>
     </rect>
    </property>
@@ -2157,9 +2157,9 @@ color: rgb(255, 0, 0);</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>131</width>
-      <height>111</height>
+      <y>30</y>
+      <width>121</width>
+      <height>101</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_3">
@@ -2247,9 +2247,9 @@ color: rgb(255, 0, 0);</string>
   <widget class="QGroupBox" name="groupBox_environment">
    <property name="geometry">
     <rect>
-     <x>1290</x>
+     <x>1310</x>
      <y>480</y>
-     <width>301</width>
+     <width>281</width>
      <height>101</height>
     </rect>
    </property>
@@ -2269,9 +2269,9 @@ color: rgb(255, 0, 0);</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>20</y>
-      <width>281</width>
-      <height>81</height>
+      <y>30</y>
+      <width>261</width>
+      <height>61</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
