@@ -30,7 +30,8 @@ MainWidget::MainWidget(QWidget *parent)
       m_serialport(new QSerialPort),
       m_mutex(new QMutex),
       m_webchannel(new QWebChannel),
-      m_compass(new Compass)
+      m_compass(new Compass),
+      m_switchcontrol(new SwitchControl)
 {
     ui->setupUi(this);
     ui->leak_tabel_text_front->setStyleSheet("color:green");
@@ -57,9 +58,9 @@ MainWidget::MainWidget(QWidget *parent)
     ui->auto_tabWidget_locs->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->init_tabwidget_locs();
 
-    m_webview = new QWebEngineView(ui->auto_tab);
-    m_webview->setGeometry(QRect(10, 30, 581, 341));
-    m_webview->load(QUrl("file:///E:/Code/FishUpper/webview/FishMap.html"));
+    m_webview = new QWebEngineView(ui->groupBox_auto);
+    m_webview->setGeometry(QRect(10, 20, 680, 680));
+    m_webview->load(QUrl("file:///E:/FishUpper/webview/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
@@ -80,7 +81,12 @@ MainWidget::MainWidget(QWidget *parent)
     this->scan_joysticks();
 
     m_compass->setParent(ui->groupBox_compass);
+    m_compass->setGeometry(QRect(10, 10, 250, 280));
     m_compass->show();
+
+//    m_switchcontrol.setParent(ui->groupBox_gldr);
+//    m_switchcontrol.show();
+//    m_switchcontrol.setGeometry(QRect(10, 10, 35, 22));
 
     rec_flag = 0x00;
     rec_index = 0x00;
@@ -98,6 +104,9 @@ MainWidget::MainWidget(QWidget *parent)
     mtr_ctrl_cmd_counter = 0;
 
     current_fish = FRAME_ADDR_FISH2;
+
+//    setAutoFillBackground(true);
+//    setPalette(QPalette(QColor(248,248,255)));
 
 }
 
@@ -514,12 +523,6 @@ void MainWidget::serial_rec_data_process()
         case FRAME_FUNC_CONNECTION:
             memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
             this->connection_confirm(rec_data[0]);
-            break;
-        case COM_TEST:
-            ++rec_pack_count;
-            ui->comtst_label_text_rec->setText(QString::number(rec_pack_count));
-            loss = (send_pack_count - rec_pack_count) / send_pack_count;
-            ui->comtst_label_text_loss->setText(QString::number(loss, 'f', 2));
             break;
         default:
             break;
@@ -1438,7 +1441,6 @@ void MainWidget::com_test()
     test_frame.tail = FRAME_TAIL;
     serial_write_data(&test_frame.head_h, test_frame.len+2);
     ++send_pack_count;
-    ui->comtst_label_text_send->setText(QString::number(send_pack_count));
 }
 
 void MainWidget::on_pushButton_clicked()
@@ -1543,27 +1545,6 @@ void MainWidget::timerEvent(QTimerEvent *event)
     }
 }
 
-void MainWidget::on_slct_btn_apply_clicked()
-{
-    if (ui->slct_cmbx_fish->currentText() == "Slave1") {
-        current_fish = FRAME_ADDR_FISH1;
-        ui->comtst_label_text_current_fish->setText("Slave1");
-    }
-    if (ui->slct_cmbx_fish->currentText() == "Master") {
-        current_fish = FRAME_ADDR_FISH2;
-        ui->comtst_label_text_current_fish->setText("Master");
-    }
-    if (ui->slct_cmbx_fish->currentText() == "Fish3") {
-        current_fish = FRAME_ADDR_FISH3;
-        ui->comtst_label_text_current_fish->setText("Fish3");
-    }
-    if (ui->slct_cmbx_fish->currentText() == "BroadCast") {
-        current_fish = FRAME_ADDR_BOARDCAST;
-        ui->comtst_label_text_current_fish->setText("BroadCast");
-    }
-    reset_data_display();
-}
-
 void MainWidget::reset_data_display()
 {
     ui->envir_label_text_curr->setText("-");
@@ -1609,4 +1590,20 @@ void MainWidget::reset_data_display()
     ui->polav6_label_text_omg_x->setText("-");
     ui->polav6_label_text_omg_y->setText("-");
     ui->polav6_label_text_omg_z->setText("-");
+}
+
+void MainWidget::on_slct_cmbx_fish_currentIndexChanged(int index)
+{
+    switch(index) {
+        case 0:
+            current_fish = FRAME_ADDR_FISH1;
+            break;
+        case 1:
+            current_fish = FRAME_ADDR_FISH2;
+            break;
+        case 2:
+            current_fish = FRAME_ADDR_FISH3;
+            break;
+    }
+
 }
