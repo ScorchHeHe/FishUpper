@@ -34,7 +34,6 @@ const uint8_t FRAME_FUNC_MOTOR = 0x03;
 const uint8_t FRAME_FUNC_POSTURE = 0x04;
 const uint8_t FRAME_FUNC_AUTO = 0x05;
 const uint8_t FRAME_FUNC_FORMATION = 0x06;
-const uint8_t COM_TEST = 0x07;
 const uint8_t FRAME_FUNC_CONNECTION = 0x08;
 
 

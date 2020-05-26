@@ -60,7 +60,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_webview = new QWebEngineView(ui->groupBox_auto);
     m_webview->setGeometry(QRect(10, 20, 680, 680));
-    m_webview->load(QUrl("file:///E:/FishUpper/webview/FishMap.html"));
+    m_webview->load(QUrl("file:///C:/G2/AUV/Beijing_AUV/Qt/FishUpper/webview/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
@@ -84,10 +84,6 @@ MainWidget::MainWidget(QWidget *parent)
     m_compass->setGeometry(QRect(10, 10, 250, 280));
     m_compass->show();
 
-//    m_switchcontrol.setParent(ui->groupBox_gldr);
-//    m_switchcontrol.show();
-//    m_switchcontrol.setGeometry(QRect(10, 10, 35, 22));
-
     rec_flag = 0x00;
     rec_index = 0x00;
 
@@ -105,8 +101,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     current_fish = FRAME_ADDR_FISH2;
 
-//    setAutoFillBackground(true);
-//    setPalette(QPalette(QColor(248,248,255)));
+    qDebug()<<QDir::currentPath();
 
 }
 
@@ -467,19 +462,13 @@ void MainWidget::serial_rec_data_process()
                 ui->leak_tabel_text_tail->setText("Normal");
                 ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
             }
-            // record stm32 data
-//            if (local_record_flag){
-//                record_file_init("stm32");
-//                local_record_stm32(stm32_data);
-//                record_file_close();
-//            }
-//            this->connection_confirm(rec_data[0]);
-            if (stm32_data.volt > 24) {
+
+            if (stm32_data.volt * 9.0 > 24) {
                 ui->slct_prgsBar_battery->setValue(100);
 
             }
             else {
-                ui->slct_prgsBar_battery->setValue((stm32_data.volt - 18) / 6.0 * 100.0);
+                ui->slct_prgsBar_battery->setValue((stm32_data.volt * 9.0 - 20) / 6.0 * 100.0);
             }
             break;
         // pola v6 data
@@ -511,13 +500,6 @@ void MainWidget::serial_rec_data_process()
             // update current location in map(javascript)
             longtitude = polav6_data.longtitude / 10000000.0;
             latitude = polav6_data.latitude / 10000000.0;
-
-//            // record polav6 data
-//            if (local_record_flag){
-//                record_file_init("polav6");
-//                local_record_polav6(polav6_data);
-//                record_file_close();
-//            }
 
             // compass display
             m_compass->update_compass(polav6_data.mag_heading);
@@ -812,7 +794,7 @@ void MainWidget::record_file_init(QString flag, QString fish)
 {
     QDateTime current_time = QDateTime::currentDateTime();
     QString file_name = current_time.toString("yyyy_MM_dd");
-    logfile = new QFile(tr("E:/Code/FishUpper/log/%1_%2_%3_log.txt").arg(file_name).arg(flag).arg(fish));
+    logfile = new QFile(tr("%1_%2_%3_log.txt").arg(file_name).arg(flag).arg(fish));
     if (!logfile->open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
         QMessageBox::critical(this, tr("Local record error, cannot open file"), tr("%1")
                               .arg(logfile->errorString()));
@@ -1328,11 +1310,16 @@ void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
 void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
 {
     int para = ui->mtr_spinBox_pushMotor->text().toUInt();
+    uint8_t index = ui->slct_cmbx_fish->currentIndex();
     if (joystick_connect_state){
         if (m_joystick->joystickExists(js_index)){
             switch (btn_index){
             case BRAKE_A:
-
+                ++index;
+                if (index > 7) {
+                    index = 0;
+                }
+                ui->slct_cmbx_fish->setCurrentIndex(index);
                 break;
             case EXIT_B:
                 this->on_js_btn_connect_clicked();
@@ -1391,70 +1378,16 @@ void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
     }
 }
 
-/**
- * Function name: on_comtst_btn_test_clicked()
- * Brief: comtst_btn_test clicked slot, start com test
- * Author: GJH
- * Paras: None
- * Return: Void
- * Version: 0.1
- * See:
- * Date: 2020.2.18
-**/
-void MainWidget::on_comtst_btn_test_clicked()
-{
-//    if (!m_serialport->isOpen()){
-//        return;
-//    }
-//    send_pack_count = 0;
-//    rec_pack_count = 0;
-//    if (m_test_timer->isActive()){
-//        m_test_timer->stop();
-//        ui->comtst_btn_test->setText("Test");
-//    }
-
-//    else {
-//        if (m_query_timer->isActive()){
-//            m_query_timer->stop();
-//        }
-//        m_test_timer->start(500);
-//        ui->comtst_btn_test->setText("Stop");
-//    }
-}
-
-/**
- * Function name: com_test()
- * Brief: com test slot, send test data pack
- * Author: GJH
- * Paras: None
- * Return: Void
- * Version: 0.1
- * See: serial_write_data()
- * Date: 2020.2.18
-**/
-void MainWidget::com_test()
-{
-    Test_Frame test_frame;
-    test_frame.head_h = FRAME_HEAD_H;
-    test_frame.head_l = FRAME_HEAD_L;
-    test_frame.addr = current_fish;
-    test_frame.rw = FRAME_WRITE;
-    test_frame.len = sizeof(test_frame) - 2;
-    test_frame.func_id = COM_TEST;
-    test_frame.count = send_pack_count;
-    uint8_t *p_test_frame;
-    p_test_frame = &test_frame.addr;
-    test_frame.xor_check = this->xor_check(p_test_frame)[1];
-    test_frame.tail = FRAME_TAIL;
-    serial_write_data(&test_frame.head_h, test_frame.len+2);
-    ++send_pack_count;
-}
-
 void MainWidget::on_pushButton_clicked()
 {
-    static float angle = 15;
-    m_compass->update_compass(angle);
-    angle += 15;
+//    static float angle = 15;
+//    m_compass->update_compass(angle);
+//    angle += 15;
+    Stm32_Data_Package stm32_data;
+    memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
+    record_file_init("stm32", "Master");
+    local_record_stm32(stm32_data);
+    record_file_close();
 }
 
 /**
@@ -1605,12 +1538,16 @@ void MainWidget::on_slct_cmbx_fish_currentIndexChanged(int index)
         case 0:
             current_fish = FRAME_ADDR_FISH1;
             break;
-        case 1:
+        case 2:
             current_fish = FRAME_ADDR_FISH2;
             break;
-        case 2:
+        case 4:
             current_fish = FRAME_ADDR_FISH3;
             break;
+        case 6:
+            current_fish = FRAME_ADDR_BOARDCAST;
+            break;
     }
+    qDebug() << current_fish << endl;
 
 }

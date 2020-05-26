@@ -204,7 +204,17 @@ color: rgb(255, 0, 0);</string>
        </item>
        <item>
         <property name="text">
+         <string> </string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Slave1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string> </string>
         </property>
        </item>
        <item>
@@ -214,7 +224,17 @@ color: rgb(255, 0, 0);</string>
        </item>
        <item>
         <property name="text">
+         <string> </string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>BroadCast</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string> </string>
         </property>
        </item>
       </widget>
@@ -223,6 +243,9 @@ color: rgb(255, 0, 0);</string>
       <widget class="QProgressBar" name="slct_prgsBar_battery">
        <property name="value">
         <number>100</number>
+       </property>
+       <property name="textDirection">
+        <enum>QProgressBar::TopToBottom</enum>
        </property>
       </widget>
      </item>
@@ -244,10 +267,10 @@ color: rgb(255, 0, 0);</string>
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>30</y>
       <width>161</width>
-      <height>61</height>
+      <height>64</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1902,9 +1925,9 @@ color: rgb(255, 0, 0);</string>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>160</width>
+      <x>40</x>
+      <y>40</y>
+      <width>111</width>
       <height>80</height>
      </rect>
     </property>
@@ -2158,7 +2181,7 @@ color: rgb(255, 0, 0);</string>
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>121</width>
+      <width>122</width>
       <height>101</height>
      </rect>
     </property>

@@ -103,13 +103,9 @@ private slots:
 
     void joystick_btn(int js_index, int btn_index, bool is_pressed);
 
-    void on_comtst_btn_test_clicked();
-
     void on_pushButton_clicked();
 
     void on_fmt_btn_execute_clicked();
-
-    void com_test();
 
     void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
 
