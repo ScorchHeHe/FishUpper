@@ -11,7 +11,7 @@
 </style> 
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=lOqh97SCr5cPI09GRyUHtOk8UDWq73ka">
 </script>
-<script type="text/javascript" src="/opt/Qt5.14.0/Examples/Qt-5.14.0/webchannel/shared/qwebchannel.js">
+<script type="text/javascript" src="C:/Qt/Qt5.12.7/Examples/Qt-5.12.7/webchannel/shared/qwebchannel.js">
 </script>
 </head>
 
@@ -229,7 +229,8 @@
             if (typeof qt != 'undefined'){
                 new QWebChannel(qt.webChannelTransport, function(channel){
                     mainwidget = channel.objects.mainwidget
-                    mainwidget.map_clicked(e.point.lng, e.point.lat);
+                    var wgs84 = bd09_to_wgs84(e.point.lng, e.point.lat)
+                    mainwidget.map_clicked(wgs84[0], wgs84[1]);
                 });
             }  
         });

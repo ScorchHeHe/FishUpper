@@ -2,6 +2,9 @@
 #define MAINWIDGET_H
 
 #include "datastruct.h"
+#include "QJoysticks.h"
+#include "compass.h"
+#include "switchcontrol.h"
 #include <QWidget>
 #include <QString>
 #include <QtSerialPort>
@@ -12,6 +15,7 @@
 #include <QFile>
 #include <QtWebEngineWidgets/QWebEngineView>
 #include <QWebChannel>
+#include <QFont>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWidget; }
@@ -35,10 +39,6 @@ private slots:
 
     void serial_rec_data_addr_parse();
 
-    void on_slct_btn_query_clicked();
-
-    void query_data();
-
     void on_mtr_spinBox_pushMotor_valueChanged(int arg1);
 
     void on_mtr_horSldr_pushMotor_valueChanged(int value);
@@ -58,8 +58,6 @@ private slots:
     void on_posi_spinBox_massPosi_valueChanged(int arg1);
 
     void on_posi_horSldr_massPosi_valueChanged(int value);
-
-    void on_mtr_btn_default_clicked();
 
     void on_mtr_btn_load_clicked();
 
@@ -91,27 +89,59 @@ private slots:
 
     void on_mtr_btn_close_all_clicked();
 
-    void on_posi_btn_default_clicked();
-
     void on_posi_btn_load_clicked();
 
     void on_posi_btn_reset_clicked();
 
     void on_auto_btn_find_me_clicked();
 
+    void on_js_btn_refresh_clicked();
+
+    void on_js_btn_connect_clicked();
+
+    void joysitck_axis(int js_index, int axis_index, qreal value);
+
+    void joystick_btn(int js_index, int btn_index, bool is_pressed);
+
+    void on_pushButton_clicked();
+
+    void on_fmt_btn_execute_clicked();
+
+    void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
+
+    void on_slct_cmbx_fish_currentIndexChanged(int index);
+
 private:
     Ui::MainWidget* ui;
     QSerialPort* m_serialport;
-    QTimer* m_timer;
     QMutex* m_mutex;
     QFile* logfile;
     QWebEngineView* m_webview;
     QWebChannel* m_webchannel;
+    QJoysticks* m_joystick;
+    Compass* m_compass;
+    SwitchControl m_switchcontrol;
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];
-    uint8_t rec_flag = 0x00;
-    uint16_t rec_index = 0x00;
+    uint8_t rec_flag;
+    uint16_t rec_index;
+    qreal push_motor_para;
+    qreal head_steer_para;
+    qreal pitch_steer_para;
+
+    // timerEvent
+    int push_mtr_timer;
+    int head_steer_timer;
+    int pitch_steer_timer;
+    int BMap_timer;
+    int send_mtr_para_timer;
+
+    float longtitude;
+    float latitude;
+
+    // current fish address
+    uint8_t current_fish;
 
     // current longtitude and latitude
     float curr_lng, curr_lat;
@@ -122,10 +152,25 @@ private:
     // auto cruise destination coordinates count
     uint8_t location_count;
 
+    // current joystick index
+    uint8_t current_joystick;
+
     // local record enable flag
-    bool local_record_flag = false;
+    bool local_record_flag;
+
+    // joystick state flag
+    bool joystick_connect_state;
+
+    // data package count in com test
+    uint8_t send_pack_count;
+    uint8_t rec_pack_count;
+    double loss;
+
+    uint8_t mtr_ctrl_cmd_counter;
 
     void scan_serialport();
+
+    void scan_joysticks();
 
     uint8_t FrameGet(uint8_t byte);
 
@@ -137,9 +182,7 @@ private:
 
     void serial_write_data(uint8_t *start_byte, uint8_t length);
 
-    uint8_t get_fish_address();
-
-    void record_file_init(QString flag);
+    void record_file_init(QString flag, QString fish);
 
     void record_file_close();
 
@@ -151,5 +194,8 @@ private:
 
     void init_tabwidget_locs();
 
+    void reset_data_display();
+
+    void record_file(QString fish);
 };
 #endif // MAINWIDGET_H

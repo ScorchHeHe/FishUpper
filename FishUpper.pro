@@ -1,6 +1,7 @@
 QT       += core gui
 QT       += serialport
 QT       += webenginewidgets
+QT       += opengl
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -17,15 +18,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    compass.cpp \
     main.cpp \
-    mainwidget.cpp
+    mainwidget.cpp \
+    switchcontrol.cpp
 
 HEADERS += \
+    compass.h \
     datastruct.h \
-    mainwidget.h
+    mainwidget.h \
+    switchcontrol.h
 
 FORMS += \
-    mainwidget.ui
+    compass.ui \
+    mainwidget.ui \
+    switchcontrol.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -33,6 +40,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    documents/HDUBeagleBoneSTM32串口通信协议数据表3.0.xlsx \
-    webview/FishMap.html \
-    webview/walkroute.html
+    webview/FishMap.html
+
+include ($$PWD/QJoysticks/QJoysticks.pri)

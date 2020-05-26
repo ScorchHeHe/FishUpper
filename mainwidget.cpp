@@ -28,9 +28,10 @@ MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent),
       ui(new Ui::MainWidget),
       m_serialport(new QSerialPort),
-      m_timer(new QTimer),
       m_mutex(new QMutex),
-      m_webchannel(new QWebChannel)
+      m_webchannel(new QWebChannel),
+      m_compass(new Compass),
+      m_switchcontrol(new SwitchControl)
 {
     ui->setupUi(this);
     ui->leak_tabel_text_front->setStyleSheet("color:green");
@@ -57,35 +58,66 @@ MainWidget::MainWidget(QWidget *parent)
     ui->auto_tabWidget_locs->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->init_tabwidget_locs();
 
-    m_webview = new QWebEngineView(ui->auto_tab);
-    m_webview->setGeometry(QRect(10, 30, 581, 341));
-    m_webview->load(QUrl("file:///home/gjh/Code/FishUpper/webview/FishMap.html"));
+    m_webview = new QWebEngineView(ui->groupBox_auto);
+    m_webview->setGeometry(QRect(10, 20, 680, 680));
+    m_webview->load(QUrl("file:///C:/G2/AUV/Beijing_AUV/Qt/FishUpper/webview/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(query_data()));
-
-    this->scan_serialport();
 
     // publish a MainWidget object to m_webchannel
     m_webchannel->registerObject("mainwidget", this);
     m_webview->page()->setWebChannel(m_webchannel);
-
     ui->auto_lineEdit_longt->setText("120.3364982");
     ui->auto_lineEdit_lat->setText("30.3137504");
+
+    m_joystick = QJoysticks::getInstance();
+    connect(m_joystick, SIGNAL(axisChanged(int, int, qreal)), this, SLOT(joysitck_axis(int, int, qreal)));
+    connect(m_joystick, SIGNAL(buttonChanged(int, int, bool)), this, SLOT(joystick_btn(int, int, bool)));
+
+    local_record_flag = false;
+
+    this->scan_serialport();
+    this->scan_joysticks();
+
+    m_compass->setParent(ui->groupBox_compass);
+    m_compass->setGeometry(QRect(10, 10, 250, 280));
+    m_compass->show();
+
+    rec_flag = 0x00;
+    rec_index = 0x00;
+
+    push_motor_para = 0;
+    head_steer_para = 0;
+    pitch_steer_para = 0;
+
+    push_mtr_timer = 0;
+    head_steer_timer = 0;
+    pitch_steer_timer = 0;
+    BMap_timer = 0;
+    send_mtr_para_timer = 0;
+
+    mtr_ctrl_cmd_counter = 0;
+
+    current_fish = FRAME_ADDR_FISH2;
+
+    qDebug()<<QDir::currentPath();
+
 }
 
 MainWidget::~MainWidget()
 {
     delete ui;
     delete m_serialport;
-    delete m_timer;
     delete m_mutex;
+    delete m_webchannel;
+    delete m_webview;
+    delete m_compass;
 }
 
 /**
  * Function name: scan_serialport()
- * Brief: find avaliable serialport and display in serst_cobx_port
+ * Brief: Add avaliable serialports to serst_cobx_port
  * Author: GJH
  * Paras: None
  * Return: Void
@@ -96,7 +128,7 @@ MainWidget::~MainWidget()
 void MainWidget::scan_serialport()
 {
     ui->serst_cobx_port->clear();
-    // find avaliable serialport and display in serst_cobx_port
+    // add avaliable serialports to cobx_port
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()){
         QSerialPort tmp_serial;
         tmp_serial.setPort(info);
@@ -116,8 +148,30 @@ void MainWidget::scan_serialport()
 }
 
 /**
+ * Function name: scan_joysticks()
+ * Brief: Add avaliable joysticks to js_cobx
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: QJoysticks: https://github.com/alex-spataru/QJoysticks
+ * Date: 2020.2.11
+**/
+void MainWidget::scan_joysticks()
+{
+    ui->js_cobx->clear();
+    m_joystick->setVirtualJoystickEnabled (true);
+    m_joystick->setVirtualJoystickRange (1);
+    QStringList js_names = m_joystick->deviceNames();
+    foreach (QString name, js_names){
+        ui->js_cobx->addItem(name);
+    }
+    joystick_connect_state = false;
+}
+
+/**
  * Function name: on_serst_btn_refresh_clicked()
- * Brief: serst_btn_refresh click slot, scan avaliable serialport when clicked
+ * Brief: serst_btn_refresh click slot, scan avaliable serialport
  * Author: GJH
  * Paras: None
  * Return: Void
@@ -151,7 +205,7 @@ void MainWidget::on_serst_btn_con_clicked()
         ui->serst_cobx_baud->setEnabled(true);
         ui->serst_btn_refresh->setEnabled(true);
         ui->serst_label_msg->setText("Please open port");
-        ui->serst_label_msg->setStyleSheet("color:black");
+        ui->serst_label_msg->setStyleSheet("font:12pt Calibri; color:black");
     }
     // open port
     else {
@@ -168,12 +222,12 @@ void MainWidget::on_serst_btn_con_clicked()
             ui->serst_cobx_baud->setDisabled(true);
             ui->serst_btn_refresh->setDisabled(true);
             ui->serst_label_msg->setText(m_serialport->portName() + " is connected");
-            ui->serst_label_msg->setStyleSheet("color:green");
+            ui->serst_label_msg->setStyleSheet("font:12pt Calibri; color:green");
         }
         // open port failed
         else {
             ui->serst_label_msg->setText("No ports found");
-            ui->serst_label_msg->setStyleSheet("color:red");
+            ui->serst_label_msg->setStyleSheet("font:12pt Calibri; color:red");
         }
     }
 }
@@ -200,34 +254,51 @@ void MainWidget::serial_rec_data_addr_parse()
         // address byte
         switch (FrameGet(buffer[i])) {
         case FRAME_ADDR_FISH1:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish1"){
+            if (current_fish == FRAME_ADDR_FISH1){
                 this->serial_rec_data_process();
             }
+            this->connection_confirm(rec_data[0]);
+            this->record_file("Slave1");
             break;
         case FRAME_ADDR_FISH2:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish2"){
+            if (current_fish == FRAME_ADDR_FISH2){
                 this->serial_rec_data_process();
             }
+            this->connection_confirm(rec_data[0]);
+            this->record_file("Master");
             break;
         case FRAME_ADDR_FISH3:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish3"){
+            if (current_fish == FRAME_ADDR_FISH3){
                 this->serial_rec_data_process();
             }
-            break;
-        case FRAME_ADDR_FISH4:
-            // current activate fish
-            if (ui->slct_cmbx_fish->currentText() == "Fish4"){
-                this->serial_rec_data_process();
-            }
+            this->connection_confirm(rec_data[0]);
+            this->record_file("Slave2");
             break;
         case 0x00:
             break;
         default:
             qDebug() << "Address process error";
             break;
+        }
+    }
+}
+
+void MainWidget::record_file(QString fish)
+{
+    if (local_record_flag) {
+        if (FRAME_FUNC_STM32 == rec_data[3]) {
+            Stm32_Data_Package stm32_data;
+            memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
+            record_file_init("stm32", fish);
+            local_record_stm32(stm32_data);
+            record_file_close();
+        }
+        if (FRAME_FUNC_POLAV6 == rec_data[3]) {
+            PolaV6_Data_Package polav6_data;
+            memcpy(&polav6_data, &rec_data[4], sizeof(polav6_data));
+            record_file_init("polav6", fish);
+            local_record_polav6(polav6_data);
+            record_file_close();
         }
     }
 }
@@ -347,102 +418,105 @@ void MainWidget::serial_rec_data_process()
     Base_Frame base_frame;
     QString current_location_cmd;
     switch (rec_data[3]) {
-    // stm32 data
-    case FRAME_FUNC_STM32:
-        memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
-        ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 2));
-        ui->envir_label_text_temper->setText(QString::number(stm32_data.temper, 'f', 2));
-        ui->envir_label_text_volt->setText(QString::number(stm32_data.volt / 1000, 'f', 3));
-        ui->envir_label_text_curr->setText(QString::number(stm32_data.curr / 1000, 'f', 3));
-        ui->xsens_label_text_roll->setText(QString::number(stm32_data.roll, 'f', 2));
-        ui->xsens_label_text_pitch->setText(QString::number(stm32_data.pitch, 'f', 2));
-        ui->xsens_label_text_yaw->setText(QString::number(stm32_data.yaw, 'f', 2));
-        ui->mtr_dsply_label_text_pumpPosi->setText(QString::number(stm32_data.pump_posi));
-        ui->mtr_dsply_label_text_massPosi->setText(QString::number(stm32_data.mass_posi));
-        ui->mtr_dsply_label_text_pushMotor->setText(QString::number(stm32_data.push_motor));
-        ui->mtr_dsply_label_text_headSteer->setText(QString::number(stm32_data.head_steer));
-        ui->mtr_dsply_label_text_pitchSteer->setText(QString::number(stm32_data.pitch_steer));
-        // front leak
-        if ((uint16_t)stm32_data.leak / 100){
-            ui->leak_tabel_text_front->setText("Leak");
-            ui->leak_tabel_text_front->setStyleSheet("color:red");
-        }
-        else {
-            ui->leak_tabel_text_front->setText("Normal");
-            ui->leak_tabel_text_front->setStyleSheet("color:green");
-        }
-        stm32_data.leak =(uint16_t)stm32_data.leak % 100;
-        // mid leak
-        if ((uint16_t)stm32_data.leak / 10){
-            ui->leak_tabel_text_mid->setText("Leak");
-            ui->leak_tabel_text_mid->setStyleSheet("color:red");
-        }
-        else {
-            ui->leak_tabel_text_mid->setText("Normal");
-            ui->leak_tabel_text_mid->setStyleSheet("color:green");
-        }
-        stm32_data.leak =(uint16_t)stm32_data.leak % 10;
-        // tail leak
-        if ((uint8_t)stm32_data.leak / 1){
-            ui->leak_tabel_text_tail->setText("Leak");
-            ui->leak_tabel_text_tail->setStyleSheet("color:red");
-        }
-        else {
-            ui->leak_tabel_text_tail->setText("Normal");
-            ui->leak_tabel_text_tail->setStyleSheet("color:green");
-        }
-        // record stm32 data
-        if (local_record_flag){
-            record_file_init("stm32");
-            local_record_stm32(stm32_data);
-            record_file_close();
-        }
-        break;
-    // pola v6 data
-    case FRAME_FUNC_POLAV6:
-        memcpy(&polav6_data, &rec_data[4], sizeof(polav6_data));
-        ui->polav6_label_text_navi_tim->setText(QString::number(polav6_data.navi_time_ms));
-        ui->polav6_label_text_long->setText(QString::number(polav6_data.longtitude / 10000000.0, 'f', 6));
-        ui->polav6_label_text_lat->setText(QString::number(polav6_data.latitude / 10000000.0, 'f', 6));
-        ui->polav6_label_text_height->setText(QString::number(polav6_data.height, 'f', 2));
-        ui->polav6_label_text_head->setText(QString::number(polav6_data.GPS_head, 'f', 2));
-        ui->polav6_label_text_gps_v->setText(QString::number(polav6_data.GPS_v, 'f', 2));
-        ui->polav6_label_text_acc_x->setText(QString::number(polav6_data.acc_x, 'f', 2));
-        ui->polav6_label_text_acc_y->setText(QString::number(polav6_data.acc_y, 'f', 2));
-        ui->polav6_label_text_acc_z->setText(QString::number(polav6_data.acc_z, 'f', 2));
-        ui->polav6_label_text_v_east->setText(QString::number(polav6_data.v_east, 'f', 2));
-        ui->polav6_label_text_v_north->setText(QString::number(polav6_data.v_north, 'f', 2));
-        ui->polav6_label_text_v_sky->setText(QString::number(polav6_data.v_sky, 'f', 2));
-        ui->polav6_label_text_omg_x->setText(QString::number(polav6_data.omg_x, 'f', 2));
-        ui->polav6_label_text_omg_y->setText(QString::number(polav6_data.omg_y, 'f', 2));
-        ui->polav6_label_text_omg_z->setText(QString::number(polav6_data.omg_z, 'f', 2));
-        ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
-        ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
-        ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));      
+        // stm32 data
+        case FRAME_FUNC_STM32:
+            memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
+            ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 2));
+            ui->envir_label_text_temper->setText(QString::number(stm32_data.temper, 'f', 2));
+            ui->envir_label_text_volt->setText(QString::number(stm32_data.volt * 9.0, 'f', 3));
+            ui->envir_label_text_curr->setText(QString::number((2.54 - stm32_data.curr) * 10, 'f', 3));
+            ui->xsens_label_text_roll->setText(QString::number(stm32_data.roll, 'f', 2));
+            ui->xsens_label_text_pitch->setText(QString::number(stm32_data.pitch, 'f', 2));
+            ui->xsens_label_text_yaw->setText(QString::number(stm32_data.yaw, 'f', 2));
+            ui->mtr_dsply_label_text_pumpPosi->setText(QString::number(stm32_data.pump_posi));
+            ui->mtr_dsply_label_text_massPosi->setText(QString::number(stm32_data.mass_posi));
+            ui->mtr_dsply_label_text_pushMotor->setText(QString::number(stm32_data.push_motor));
+            ui->mtr_dsply_label_text_headSteer->setText(QString::number(stm32_data.head_steer));
+            ui->mtr_dsply_label_text_pitchSteer->setText(QString::number(stm32_data.pitch_steer));
+            // front leak
+            if ((uint16_t)stm32_data.leak / 100){
+                ui->leak_tabel_text_front->setText("Leak");
+                ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:red");
+            }
+            else {
+                ui->leak_tabel_text_front->setText("Normal");
+                ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:green");
+            }
+            stm32_data.leak =(uint16_t)stm32_data.leak % 100;
+            // mid leak
+            if ((uint16_t)stm32_data.leak / 10){
+                ui->leak_tabel_text_mid->setText("Leak");
+                ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:red");
+            }
+            else {
+                ui->leak_tabel_text_mid->setText("Normal");
+                ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:green");
+            }
+            stm32_data.leak =(uint16_t)stm32_data.leak % 10;
+            // tail leak
+            if ((uint8_t)stm32_data.leak){
+                ui->leak_tabel_text_tail->setText("Leak");
+                ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:red");
+            }
+            else if (!(uint8_t)stm32_data.leak){
+                ui->leak_tabel_text_tail->setText("Normal");
+                ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
+            }
 
-        // show current location in map(javascript)
-        current_location_cmd = QString("current_location(%1, %2);").
-                arg(polav6_data.longtitude / 10000000.0).
-                arg(polav6_data.latitude / 10000000.0);
-        m_webview->page()->runJavaScript(current_location_cmd);
+            if (stm32_data.volt * 9.0 > 24) {
+                ui->slct_prgsBar_battery->setValue(100);
 
-        // record polav6 data
-        if (local_record_flag){
-            record_file_init("polav6");
-            local_record_polav6(polav6_data);
-            record_file_close();
-        }
-        break;
-    // connection confirm
-    case FRAME_FUNC_CONNECTION:
-        memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
-        this->connection_confirm(rec_data[0]);
-        break;
-    default:
-        break;
+            }
+            else {
+                ui->slct_prgsBar_battery->setValue((stm32_data.volt * 9.0 - 20) / 6.0 * 100.0);
+            }
+            break;
+        // pola v6 data
+        case FRAME_FUNC_POLAV6:
+            memcpy(&polav6_data, &rec_data[4], sizeof(polav6_data));
+            ui->polav6_label_text_navi_tim->setText(QString::number(polav6_data.navi_time_ms));
+            ui->polav6_label_text_long->setText(QString::number(polav6_data.longtitude / 10000000.0, 'f', 6));
+            ui->polav6_label_text_lat->setText(QString::number(polav6_data.latitude / 10000000.0, 'f', 6));
+            ui->polav6_label_text_height->setText(QString::number(polav6_data.height, 'f', 2));
+            ui->polav6_label_text_head->setText(QString::number(polav6_data.GPS_head, 'f', 2));
+            ui->polav6_label_text_gps_v->setText(QString::number(polav6_data.GPS_v, 'f', 2));
+            ui->polav6_label_text_acc_x->setText(QString::number(polav6_data.acc_x, 'f', 2));
+            ui->polav6_label_text_acc_y->setText(QString::number(polav6_data.acc_y, 'f', 2));
+            ui->polav6_label_text_acc_z->setText(QString::number(polav6_data.acc_z, 'f', 2));
+            ui->polav6_label_text_v_east->setText(QString::number(polav6_data.v_east, 'f', 2));
+            ui->polav6_label_text_v_north->setText(QString::number(polav6_data.v_north, 'f', 2));
+            ui->polav6_label_text_v_sky->setText(QString::number(polav6_data.v_sky, 'f', 2));
+            ui->polav6_label_text_omg_x->setText(QString::number(polav6_data.omg_x, 'f', 2));
+            ui->polav6_label_text_omg_y->setText(QString::number(polav6_data.omg_y, 'f', 2));
+            ui->polav6_label_text_omg_z->setText(QString::number(polav6_data.omg_z, 'f', 2));
+            ui->polav6_label_text_pitch->setText(QString::number(polav6_data.pitch, 'f', 2));
+            ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
+            ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));
+            ui->polav6_label_text_mag_head->setText(QString::number(polav6_data.mag_heading, 'f', 2));
+            ui->polav6_label_text_gps_long->setText(QString::number(polav6_data.gps_long / 10000000.0, 'f', 2));
+            ui->polav6_label_text_gps_lat->setText(QString::number(polav6_data.gps_lat / 10000000.0, 'f', 2));
+
+
+            // update current location in map(javascript)
+            longtitude = polav6_data.longtitude / 10000000.0;
+            latitude = polav6_data.latitude / 10000000.0;
+
+            // compass display
+            m_compass->update_compass(polav6_data.mag_heading);
+            break;
+        // motor feedback
+        case FRAME_FUNC_MOTOR:
+            send_mtr_para_timer = 0;
+            break;
+        // connection confirm
+        case FRAME_FUNC_CONNECTION:
+            memcpy(&base_frame, &rec_data[0], sizeof(base_frame));
+            this->connection_confirm(rec_data[0]);
+            break;
+        default:
+            break;
     }
 }
-
 /**
  * Function name: connection_confirm(uint8_t address)
  * Brief: Send connection confirm frame
@@ -496,85 +570,6 @@ void MainWidget::serial_write_data(uint8_t* start_byte, uint8_t length)
 }
 
 /**
- * Function name: on_slct_btn_query_clicked()
- * Brief: slct_btn_query click slot, start or stop query data from stm32 and pola v6
- * Author: GJH
- * Paras: None
- * Return: Void
- * Version: 0.1
- * See:
- * Date: 2020.1.9
-**/
-void MainWidget::on_slct_btn_query_clicked()
-{
-    // stop query data
-    if (m_timer->isActive()){
-        m_timer->stop();
-        ui->slct_lineEdit_text_interval->setEnabled(true);
-        ui->slct_btn_query->setText("Query");
-    }
-    // start query data
-    else{
-        // set query interval
-        m_timer->start(ui->slct_lineEdit_text_interval->text().toUInt());
-        ui->slct_lineEdit_text_interval->setDisabled(true);
-        ui->slct_btn_query->setText("Stop");
-    }
-}
-
-/**
- * Function name: query_data()
- * Brief: query data slot, send query frame to serialport
- * Author: GJH
- * Paras: None
- * Return: Void
- * Version: 0.1
- * See: get_fish_address()
- *      xor_check(uint8_t *data_byte)
- *      serial_write_data(uint8_t* start_byte, uint8_t length)
- * Date: 2020.1.9
-**/
-void MainWidget::query_data()
-{
-    Base_Frame base_frame;
-    base_frame.head_h = FRAME_HEAD_H;
-    base_frame.head_l = FRAME_HEAD_L;
-    base_frame.addr = get_fish_address();
-    base_frame.rw = FRAME_READ;
-    base_frame.len = sizeof(base_frame) - 2;
-    base_frame.func_id = FRAME_FUNC_STM32;
-    uint8_t *p_base_frame;
-    p_base_frame = &base_frame.addr;
-    base_frame.xor_check = this->xor_check(p_base_frame)[1];
-    base_frame.tail = FRAME_TAIL;
-    serial_write_data(&base_frame.head_h, base_frame.len+2);
-}
-
-/**
- * Function name: get_fish_address()
- * Brief: get address bit according to slct_cmbx_fish
- * Author: GJH
- * Paras: None
- * Return: (uint8_t) addr: current fish address
- * Version: 0.1
- * See:
- * Date: 2020.1.9
-**/
-uint8_t MainWidget::get_fish_address()
-{
-    uint8_t addr;
-    if (ui->slct_cmbx_fish->currentText() == "Fish1")
-        addr = FRAME_ADDR_FISH1;
-    if (ui->slct_cmbx_fish->currentText() == "Fish2")
-        addr = FRAME_ADDR_FISH2;
-    if (ui->slct_cmbx_fish->currentText() == "Fish3")
-        addr = FRAME_ADDR_FISH3;
-    if (ui->slct_cmbx_fish->currentText() == "Fish4")
-        addr = FRAME_ADDR_FISH4;
-    return addr;
-}
-
-/**
  * Function name: on_mtr_spinBox_XXX_valueChanged and on_mtr_horSldr_XXX_valueChanged
  * Brief: Bind motor spinBox and slider value change slots
  * Author: GJH
@@ -593,11 +588,11 @@ void MainWidget::on_mtr_horSldr_pushMotor_valueChanged(int value)
 }
 void MainWidget::on_mtr_spinBox_headSteer_valueChanged(int arg1)
 {
-    ui->mtr_horSldr_headSteer->setValue(arg1);
+    ui->mtr_horSldr_headSteer->setValue(3000 - arg1);
 }
 void MainWidget::on_mtr_horSldr_headSteer_valueChanged(int value)
 {
-    ui->mtr_spinBox_headSteer->setValue(value);
+    ui->mtr_spinBox_headSteer->setValue(3000 - value);
 }
 void MainWidget::on_mtr_spinBox_pitchSteer_valueChanged(int arg1)
 {
@@ -625,23 +620,6 @@ void MainWidget::on_posi_horSldr_massPosi_valueChanged(int value)
 }
 
 /**
- * Function name: on_mtr_btn_default_clicked()
- * Brief: mtr_btn_default clicked slot, set motor control parameters to default value
- * Author: GJH
- * Paras: None
- * Return: Void
- * Version: 0.1
- * See:
- * Date: 2020.1.10
-**/
-void MainWidget::on_mtr_btn_default_clicked()
-{
-    ui->mtr_spinBox_pushMotor->setValue(MOTOR_PUSH);
-    ui->mtr_spinBox_headSteer->setValue(MOTOR_HEAD_STEER);
-    ui->mtr_spinBox_pitchSteer->setValue(MOTOR_PITCH_STEER);
-}
-
-/**
  * Function name: on_mtr_btn_load_clicked()
  * Brief: mtr_btn_load clicked slot, send motor control and posture control parameters to serialport
  * Author: GJH
@@ -656,12 +634,21 @@ void MainWidget::on_mtr_btn_default_clicked()
 void MainWidget::on_mtr_btn_load_clicked()
 {
     // send motor ctrl parameters
+    if (!send_mtr_para_timer)
+        send_mtr_para_timer = startTimer(1000);
+
+    if (mtr_ctrl_cmd_counter == 3) {
+        send_mtr_para_timer = 0;
+        mtr_ctrl_cmd_counter = 0;
+    }
+    ++mtr_ctrl_cmd_counter;
+
     Motor_Para_Package motor_para;
     Motor_Frame motor_frame;
     motor_para.push_motor = ui->mtr_spinBox_pushMotor->value();
-    motor_para.head_steer = ui->mtr_spinBox_headSteer->value();
-    motor_para.pitch_steer = ui->mtr_spinBox_pitchSteer->value();
-    motor_para.status_ctrl = 0x00;
+    motor_para.head_steer = ui->mtr_spinBox_pitchSteer->value();
+    motor_para.pitch_steer = ui->mtr_spinBox_headSteer->value();
+    motor_para.status_ctrl = 0x01;
     if (ui->mtr_checkBox_bbb_ctrl->isChecked()){
         motor_para.status_ctrl += 10;
     }
@@ -687,13 +674,13 @@ void MainWidget::on_mtr_btn_load_clicked()
     if (ui->pwr_checkBox_bbb->isChecked()){
         motor_para.power_ctrl += 1;
     }
-    motor_para.reserved = 0;
+    motor_para.reserved = 10;
 
     motor_frame.head_h = FRAME_HEAD_H;
     motor_frame.head_l = FRAME_HEAD_L;
-    motor_frame.addr = get_fish_address();
+    motor_frame.addr = current_fish;
     motor_frame.rw = FRAME_WRITE;
-    motor_frame.len = sizeof(motor_frame) - 2;
+    motor_frame.len = sizeof(motor_para) + 6;
     motor_frame.func_id = FRAME_FUNC_MOTOR;
     motor_frame.motor_para = motor_para;
     uint8_t *p_motor_frame;
@@ -701,11 +688,16 @@ void MainWidget::on_mtr_btn_load_clicked()
     motor_frame.xor_check = this->xor_check(p_motor_frame)[1];
     motor_frame.tail = FRAME_TAIL;
     serial_write_data(&motor_frame.head_h, motor_frame.len + 2);
-//    sleep_ms(200);
-//    serial_write_data(&motor_frame.head_h, motor_frame.len + 2);
+
+//结构体未对齐用以下发送方式
+//    serial_write_data(&motor_frame.head_h, 6);
+//    m_serialport->write((char*)&motor_frame.motor_para, sizeof(motor_para));
+//    serial_write_data(&motor_frame.xor_check, 2);
+
     // clear control byte
     motor_para.power_ctrl = 0x00;
     motor_para.status_ctrl = 0x00;
+
 }
 
 /**
@@ -798,11 +790,11 @@ void MainWidget::on_pwr_btn_apply_clicked()
  * See:
  * Date: 2020.1.10
 **/
-void MainWidget::record_file_init(QString flag)
+void MainWidget::record_file_init(QString flag, QString fish)
 {
     QDateTime current_time = QDateTime::currentDateTime();
     QString file_name = current_time.toString("yyyy_MM_dd");
-    logfile = new QFile(tr("%1_%2_log.txt").arg(file_name).arg(flag));
+    logfile = new QFile(tr("%1_%2_%3_log.txt").arg(file_name).arg(flag).arg(fish));
     if (!logfile->open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
         QMessageBox::critical(this, tr("Local record error, cannot open file"), tr("%1")
                               .arg(logfile->errorString()));
@@ -839,9 +831,9 @@ void MainWidget::local_record_stm32(Stm32_Data_Package stm32_data)
     QTextStream logout(logfile);
     QDateTime current_time = QDateTime::currentDateTime();
     logout << "[" << current_time.toString("yyyy-MM-dd hh:mm:ss") << "] " << "Deepth: " << stm32_data.deepth << "   " <<
-              "Temperature: " << stm32_data.temper << "   " << "Xsens_Roll" << stm32_data.roll << "   " <<
-              "Xsens_Pitch: " << stm32_data.pitch << "   " << "Xsens_yaw" << stm32_data.yaw << "   " <<
-              "Voltage: " << stm32_data.volt << "   " << "Current: " << stm32_data.curr << "   " <<
+              "Temperature: " << stm32_data.temper << "   " << "Xsens_Roll: " << stm32_data.roll << "   " <<
+              "Xsens_Pitch: " << stm32_data.pitch << "   " << "Xsens_yaw: " << stm32_data.yaw << "   " <<
+              "Voltage: " << stm32_data.volt * 9 << "   " << "Current: " << (2.54 - stm32_data.curr) * 10 << "   " <<
               "pump_Position: " << stm32_data.pump_posi << "   " << "Mass_Position: " << stm32_data.mass_posi << "   " <<
               "Leak: " << stm32_data.leak << "   " << "Push_Motor: " << stm32_data.push_motor << "   " <<
               "Head_Steer: " << stm32_data.head_steer << "   " << "Pitch_Steer: " << stm32_data.pitch_steer << endl;
@@ -861,8 +853,9 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
 {
     QTextStream logout(logfile);
     QDateTime current_time = QDateTime::currentDateTime();
+    logout.setRealNumberPrecision(9);
     logout << "[" << current_time.toString("yyyy-MM-dd hh:mm:ss") << "] " << "Time: " << polav6_data.navi_time_ms << "   " <<
-              "Longtitude: " << polav6_data.longtitude << "   " << "Latitude: " << polav6_data.latitude << "   " <<
+              "Longtitude: " << polav6_data.longtitude /  10000000.0 << "   " << "Latitude: " << polav6_data.latitude /  10000000.0 << "   " <<
               "Height: " << polav6_data.height << "   " << "GPS_Heading: " << polav6_data.GPS_head << "  " <<
               "GPS_V: " << polav6_data.GPS_v << "   " << "Acc_x: " << polav6_data.acc_x << "   " <<
               "Acc_y: " << polav6_data.acc_y << "   " << "Acc_z: " << polav6_data.acc_z << "   " <<
@@ -870,7 +863,9 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
               "V Sky: " << polav6_data.v_sky << "   " << "Omg_x: " << polav6_data.omg_x << "   " <<
               "Omg_y: " << polav6_data.omg_y << "   " << "Omg_z: " << polav6_data.omg_z << "   " <<
               "Roll: " << polav6_data.roll << "   " << "Pitch: " << polav6_data.pitch << "   " <<
-              "yaw: " << polav6_data.yaw << endl;
+              "yaw: " << polav6_data.yaw << "   " << "Mag_heading: " << polav6_data.mag_heading <<
+              "GPS_longtitude: " << polav6_data.gps_long /  10000000.0 << "   "
+              "GPS_latitude: " << polav6_data.gps_lat /  10000000.0 << endl;
 }
 
 /**
@@ -885,13 +880,13 @@ void MainWidget::local_record_polav6(PolaV6_Data_Package polav6_data)
 **/
 void MainWidget::on_log_btn_apply_clicked()
 {
-    this->on_mtr_btn_load_clicked();
     if (ui->log_checkBox_local_record->isChecked()){
         local_record_flag = true;
     }
     else {
         local_record_flag = false;
     }
+    this->on_mtr_btn_load_clicked();
 }
 
 /**
@@ -1039,9 +1034,9 @@ void MainWidget::on_auto_btn_execute_clicked()
 
     auto_frame.head_h = FRAME_HEAD_H;
     auto_frame.head_l = FRAME_HEAD_L;
-    auto_frame.addr = get_fish_address();
+    auto_frame.addr = current_fish;
     auto_frame.rw = FRAME_WRITE;
-    auto_frame.len = sizeof(auto_frame) - 2;
+    auto_frame.len = sizeof(auto_para) + 6;
     auto_frame.func_id = FRAME_FUNC_AUTO;
     auto_frame.auto_para = auto_para;
     uint8_t *p_auto_frame;
@@ -1049,8 +1044,11 @@ void MainWidget::on_auto_btn_execute_clicked()
     auto_frame.xor_check = this->xor_check(p_auto_frame)[1];
     auto_frame.tail = FRAME_TAIL;
     serial_write_data(&auto_frame.head_h, auto_frame.len + 2);
-//    sleep_ms(200);
-//    serial_write_data(&auto_frame.head_h, auto_frame.len + 2);
+//结构体未对齐用以下发送方式
+//    serial_write_data(&auto_frame.head_h, 6);
+//    m_serialport->write((char*)&auto_frame.auto_para, sizeof(auto_para));
+//    serial_write_data(&auto_frame.xor_check, 2);
+
     this->on_auto_btn_clear_clicked();
 
     QString reset_cmd = QString("reset();");
@@ -1070,25 +1068,10 @@ void MainWidget::on_auto_btn_execute_clicked()
 **/
 void MainWidget::on_mtr_btn_close_all_clicked()
 {
-    this->on_mtr_btn_default_clicked();
+    ui->mtr_spinBox_pushMotor->setValue(500);
+    ui->mtr_spinBox_headSteer->setValue(1500);
+    ui->mtr_spinBox_pitchSteer->setValue(1500);
     this->on_mtr_btn_load_clicked();
-}
-
-/**
- * Function name: on_posi_btn_default_clicked()
- * Brief: posi_btn_default clicked slot, set pumpPosi and massPosi to default value
- * Author: GJH
- * Paras: None
- * Return: Void
- * Version: 0.1
- * See: PUMP_POSITION
- *      MASS_POSITION
- * Date: 2020.1.13
-**/
-void MainWidget::on_posi_btn_default_clicked()
-{
-    ui->posi_spinBox_pumpPosi->setValue(PUMP_POSITION);
-    ui->posi_spinBox_massPosi->setValue(MASS_POSITION);
 }
 
 /**
@@ -1112,15 +1095,15 @@ void MainWidget::on_posi_btn_load_clicked()
 
     posture_para.mass_position = ui->posi_spinBox_massPosi->value();
     posture_para.pump_position = ui->posi_spinBox_pumpPosi->value();
-    posture_para.reserved_1 = 0;
-    posture_para.reserved_2 = 0;
-    posture_para.reserved_3 = 0;
+    posture_para.reserved_1 = 1;
+    posture_para.reserved_2 = 2;
+    posture_para.reserved_3 = 3;
 
     posture_frame.head_h = FRAME_HEAD_H;
     posture_frame.head_l = FRAME_HEAD_L;
-    posture_frame.addr = get_fish_address();
+    posture_frame.addr = current_fish;
     posture_frame.rw = FRAME_WRITE;
-    posture_frame.len = sizeof(posture_frame) - 2;
+    posture_frame.len = sizeof(posture_para) + 6;
     posture_frame.func_id = FRAME_FUNC_POSTURE;
     posture_frame.posture_para = posture_para;
     uint8_t *p_pose_frame;
@@ -1128,8 +1111,11 @@ void MainWidget::on_posi_btn_load_clicked()
     posture_frame.xor_check = this->xor_check(p_pose_frame)[1];
     posture_frame.tail = FRAME_TAIL;
     serial_write_data(&posture_frame.head_h, posture_frame.len + 2);
-//    sleep_ms(200);
-//    serial_write_data(&posture_frame.head_h, posture_frame.len + 2);
+
+//结构体未对齐用以下发送方式
+//    serial_write_data(&posture_frame.head_h, 6);
+//    m_serialport->write((char*)&posture_frame.posture_para, sizeof(posture_para));
+//    serial_write_data(&posture_frame.xor_check, 2);
 }
 
 /**
@@ -1145,15 +1131,9 @@ void MainWidget::on_posi_btn_load_clicked()
 **/
 void MainWidget::on_posi_btn_reset_clicked()
 {
-    this->on_posi_btn_default_clicked();
+    ui->posi_spinBox_pumpPosi->setValue(200);
+    ui->posi_spinBox_massPosi->setValue(4000);
     this->on_posi_btn_load_clicked();
-}
-
-void MainWidget::sleep_ms(uint16_t ms)
-{
-    QTime dieTime = QTime::currentTime().addMSecs(ms);
-    while( QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
 /**
@@ -1209,12 +1189,365 @@ void MainWidget::map_clicked(QString longtitude, QString latitude)
 void MainWidget::on_auto_btn_find_me_clicked()
 {
     // for test
-    static float lng = 120.3364982;
-    static float lat = 30.3137504;
-    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
-    m_webview->page()->runJavaScript(current_location_cmd);
-    lng = lng + 0.05;
+//    static float lng = 120.3364982;
+//    static float lat = 30.3137504;
+//    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
+//    m_webview->page()->runJavaScript(current_location_cmd);
+//    lng = lng + 0.05;
+    if(!BMap_timer)
+        BMap_timer = startTimer(5000);
 
-//    QString pan_to_current_cmd = QString("pan_to_current();");
-//    m_webview->page()->runJavaScript(pan_to_current_cmd);
+    QString pan_to_current_cmd = QString("pan_to_current();");
+    m_webview->page()->runJavaScript(pan_to_current_cmd);
+}
+
+/**
+ * Function name: on_js_btn_refresh_clicked()
+ * Brief: js_btn_refresh clicked slot, scan avaliable joystick
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: QJoysticks/Sources/src/QJoysticks.cpp -> updateInterfaces();
+ * Date: 2020.2.11
+**/
+void MainWidget::on_js_btn_refresh_clicked()
+{
+    ui->js_cobx->clear();
+    m_joystick->updateInterfaces();
+    QStringList js_names = m_joystick->deviceNames();
+    foreach (QString name, js_names){
+        ui->js_cobx->addItem(name);
+    }
+}
+
+/**
+ * Function name: on_js_btn_connect_clicked()
+ * Brief: Enabel joystick
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.11
+**/
+void MainWidget::on_js_btn_connect_clicked()
+{
+    if (ui->js_cobx->currentText() == ""){
+        return;
+    }
+    if (joystick_connect_state){
+        joystick_connect_state = false;
+        ui->js_btn_connect->setText("Connect");
+        ui->js_btn_refresh->setEnabled(true);
+        ui->mtr_checkBox_bbb_ctrl->setChecked(false);
+
+        if (push_mtr_timer)
+            push_mtr_timer = 0;
+        if (pitch_steer_timer)
+            pitch_steer_timer = 0;
+        if (head_steer_timer)
+            head_steer_timer = 0;
+    }
+    else {
+        if (m_joystick->joystickExists(0)){
+            ui->mtr_checkBox_bbb_ctrl->setChecked(false);
+            ui->js_btn_connect->setText("Disconnect");
+            ui->js_btn_refresh->setDisabled(true);
+            joystick_connect_state = true;
+
+            if (!push_mtr_timer)
+                push_mtr_timer = startTimer(20);
+            if (!pitch_steer_timer)
+                pitch_steer_timer = startTimer(20);
+            if (!head_steer_timer)
+                head_steer_timer = startTimer(20);
+        }
+    }
+}
+
+/**
+ * Function name: joysitck_axis()
+ * Brief: QJoysticks->axisChanged slot, use joystick to modify motor parameters
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.11
+**/
+void MainWidget::joysitck_axis(int js_index, int axis_index, qreal value)
+{
+    if (joystick_connect_state){
+        if (m_joystick->joystickExists(js_index)){
+            switch (axis_index){
+            case PUSH_MORTOR:
+                push_motor_para = value;
+                break;
+            case HEAD_STEER:
+                head_steer_para = value;
+                break;
+            case PITCH_STEER:
+                pitch_steer_para = value;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+/**
+ * Function name: joystick_btn()
+ * Brief: QJoysticks->buttonChanged slot, use joystick to modify motor parameters
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.2.11
+**/
+void MainWidget::joystick_btn(int js_index, int btn_index, bool is_pressed)
+{
+    int para = ui->mtr_spinBox_pushMotor->text().toUInt();
+    uint8_t index = ui->slct_cmbx_fish->currentIndex();
+    if (joystick_connect_state){
+        if (m_joystick->joystickExists(js_index)){
+            switch (btn_index){
+            case BRAKE_A:
+                ++index;
+                if (index > 7) {
+                    index = 0;
+                }
+                ui->slct_cmbx_fish->setCurrentIndex(index);
+                break;
+            case EXIT_B:
+                this->on_js_btn_connect_clicked();
+                break;
+            case RESET_X:
+                // set motor control parameters to default value
+                this->on_mtr_btn_close_all_clicked();
+                break;
+            case SHIFT_Y:
+                if (ui->mtr_spinBox_pushMotor->value() == 500) {
+                    if (ui->mtr_checkBox_reverse->isChecked()) {
+                        ui->mtr_checkBox_reverse->setChecked(false);
+                    }
+                    else {
+                        ui->mtr_checkBox_reverse->setChecked(true);
+                    }
+                }
+                break;
+            case LB:
+                if (para >= 550)
+                    para -= 25;
+                else if (para > 500)
+                    para = 500;
+                else if (para >= 50 && para < 500)
+                    para -= 25;
+                else if (para < 50)
+                    para = 0;
+                else if (para == 500 && ui->mtr_checkBox_reverse->isChecked())
+                    para -= 25;
+                ui->mtr_spinBox_pushMotor->setValue(para);
+                send_mtr_para_timer=startTimer(1000);
+                break;
+            case RB:
+                if (para >= 950)
+                    para = 1000;
+                else if (para > 500)
+                    para += 25;
+                else if (para >= 450 && para < 500)
+                    para = 500;
+                else if (para < 450)
+                    para += 25;
+                else if (para == 500 && !ui->mtr_checkBox_reverse->isChecked())
+                    para += 25;
+                ui->mtr_spinBox_pushMotor->setValue(para);
+                send_mtr_para_timer=startTimer(1000);
+                break;
+            case START:
+                this->on_mtr_btn_load_clicked();
+            default:
+                break;
+            }
+        }
+    }
+    else {
+        qDebug() << "Joystick connect error!";
+    }
+}
+
+void MainWidget::on_pushButton_clicked()
+{
+//    static float angle = 15;
+//    m_compass->update_compass(angle);
+//    angle += 15;
+    Stm32_Data_Package stm32_data;
+    memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
+    record_file_init("stm32", "Master");
+    local_record_stm32(stm32_data);
+    record_file_close();
+}
+
+/**
+ * Function name: on_fmt_btn_execute_clicked()
+ * Brief: fmt_btn_execute clicked slot, start formation
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See: on_mtr_btn_load_clicked()
+ * Date: 2020.5.11
+**/
+void MainWidget::on_fmt_btn_execute_clicked()
+{
+    Formation_Para_Package formation_para;
+    Formation_Frame formation_frame;
+
+    formation_para.status_ctrl = 0;
+    if (ui->fmt_cmbx_plan->currentText() == "Plan0") {
+        formation_para.plan = 0;
+    }
+    if (ui->fmt_cmbx_plan->currentText() == "Plan1") {
+        formation_para.plan = 1;
+    }
+    if (ui->fmt_cmbx_plan->currentText() == "Plan2") {
+        formation_para.plan = 2;
+    }
+    formation_para.distance = ui->fmt_lineEdit_text_distance->text().toFloat();
+    formation_para.speed = ui->fmt_lineEdit_text_speed->text().toFloat();
+    formation_para.depth = ui->fmt_lineEdit_text_depth->text().toFloat();
+    formation_para.heading = ui->fmt_lineEdit_text_heading->text().toFloat();
+    formation_para.time = ui->fmt_lineEdit_text_time->text().toFloat();
+
+    formation_frame.head_h = FRAME_HEAD_H;
+    formation_frame.head_l = FRAME_HEAD_L;
+    formation_frame.addr = current_fish;
+    formation_frame.rw = FRAME_WRITE;
+    formation_frame.len = sizeof(formation_para) + 6;
+    formation_frame.func_id = FRAME_FUNC_FORMATION;
+    formation_frame.formation_para = formation_para;
+    uint8_t *p_formation_frame;
+    p_formation_frame = &formation_frame.addr;
+    formation_frame.xor_check = this->xor_check(p_formation_frame)[1];
+    formation_frame.tail = FRAME_TAIL;
+    serial_write_data(&formation_frame.head_h, formation_frame.len + 2);
+//结构体未对齐用以下发送方式
+//    serial_write_data(&formation_frame.head_h, 6);
+//    m_serialport->write((char*)&formation_frame.formation_para, sizeof(formation_para));
+//    serial_write_data(&formation_frame.xor_check, 2);
+
+     ui->mtr_checkBox_bbb_ctrl->setChecked(true);
+}
+
+/**
+ * Function name: timerEvent()
+ * Brief: timer management (m_query_timer, push_mtr_timer, head_steer_timer, pitch_steer_timer)
+ * Author: GJH
+ * Paras: None
+ * Return: Void
+ * Version: 0.1
+ * See:
+ * Date: 2020.5.11
+**/
+void MainWidget::timerEvent(QTimerEvent *event)
+{
+    // send motion control para
+    if (event->timerId() == send_mtr_para_timer) {
+        this->on_mtr_btn_load_clicked();
+    }
+
+    // joystick push motor ctrl
+    if (event->timerId() == push_mtr_timer) {
+        if (ui->mtr_spinBox_pushMotor->value() >= 500 && !ui->mtr_checkBox_reverse->isChecked()) {
+            ui->mtr_spinBox_pushMotor->setRange(500, 1000);
+            ui->mtr_spinBox_pushMotor->setValue(ui->mtr_spinBox_pushMotor->value() - push_motor_para * 10);
+        }
+        if (ui->mtr_spinBox_pushMotor->value() <= 500 && ui->mtr_checkBox_reverse->isChecked()) {
+            ui->mtr_spinBox_pushMotor->setRange(0, 500);
+            ui->mtr_spinBox_pushMotor->setValue(ui->mtr_spinBox_pushMotor->value() - push_motor_para * 10);
+        }
+    }
+    // joystick steer ctrl
+    else if (event->timerId() == head_steer_timer) {
+        ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 10);
+    }
+    else if (event->timerId() == pitch_steer_timer) {
+        ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 10);
+    }
+
+    // map current location
+    else if (event->timerId() == BMap_timer) {
+        QString current_location_cmd;
+        current_location_cmd = QString("current_location(%1, %2);").arg(longtitude).arg(latitude);
+        m_webview->page()->runJavaScript(current_location_cmd);
+    }
+}
+
+void MainWidget::reset_data_display()
+{
+    ui->envir_label_text_curr->setText("-");
+    ui->envir_label_text_volt->setText("-");
+    ui->envir_label_text_deepth->setText("-");
+    ui->envir_label_text_temper->setText("-");
+
+    ui->xsens_label_text_yaw->setText("-");
+    ui->xsens_label_text_roll->setText("-");
+    ui->xsens_label_text_pitch->setText("-");
+
+    ui->leak_tabel_text_front->setText("Normal");
+    ui->leak_tabel_text_front->setStyleSheet("font:12pt Calibri; color:green");
+    ui->leak_tabel_text_mid->setText("Normal");
+    ui->leak_tabel_text_mid->setStyleSheet("font:12pt Calibri; color:green");
+    ui->leak_tabel_text_tail->setText("Normal");
+    ui->leak_tabel_text_tail->setStyleSheet("font:12pt Calibri; color:green");
+
+    ui->mtr_dsply_label_text_massPosi->setText("-");
+    ui->mtr_dsply_label_text_pumpPosi->setText("-");
+    ui->mtr_dsply_label_text_pushMotor->setText("-");
+    ui->mtr_dsply_label_text_pitchSteer->setText("-");
+    ui->mtr_dsply_label_text_headSteer->setText("-");
+
+    ui->polav6_label_text_navi_tim->setText("-");
+    ui->polav6_label_text_gps_v->setText("-");
+    ui->polav6_label_text_head->setText("-");
+    ui->polav6_label_text_long->setText("-");
+    ui->polav6_label_text_lat->setText("-");
+    ui->polav6_label_text_height->setText("-");
+    ui->polav6_label_text_mag_head->setText("-");
+    ui->polav6_label_text_v_east->setText("-");
+    ui->polav6_label_text_v_north->setText("-");
+    ui->polav6_label_text_v_sky->setText("-");
+    ui->polav6_label_text_pitch->setText("-");
+    ui->polav6_label_text_yaw->setText("-");
+    ui->polav6_label_text_roll->setText("-");
+    ui->polav6_label_text_gps_long->setText("-");
+    ui->polav6_label_text_gps_lat->setText("-");
+    ui->polav6_label_text_acc_x->setText("-");
+    ui->polav6_label_text_acc_y->setText("-");
+    ui->polav6_label_text_acc_z->setText("-");
+    ui->polav6_label_text_omg_x->setText("-");
+    ui->polav6_label_text_omg_y->setText("-");
+    ui->polav6_label_text_omg_z->setText("-");
+}
+
+void MainWidget::on_slct_cmbx_fish_currentIndexChanged(int index)
+{
+    switch(index) {
+        case 0:
+            current_fish = FRAME_ADDR_FISH1;
+            break;
+        case 2:
+            current_fish = FRAME_ADDR_FISH2;
+            break;
+        case 4:
+            current_fish = FRAME_ADDR_FISH3;
+            break;
+        case 6:
+            current_fish = FRAME_ADDR_BOARDCAST;
+            break;
+    }
+    qDebug() << current_fish << endl;
+
 }
