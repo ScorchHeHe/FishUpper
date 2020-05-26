@@ -4,6 +4,7 @@
 #include "datastruct.h"
 #include "QJoysticks.h"
 #include "compass.h"
+#include "switchcontrol.h"
 #include <QWidget>
 #include <QString>
 #include <QtSerialPort>
@@ -102,17 +103,13 @@ private slots:
 
     void joystick_btn(int js_index, int btn_index, bool is_pressed);
 
-    void on_comtst_btn_test_clicked();
-
     void on_pushButton_clicked();
 
     void on_fmt_btn_execute_clicked();
 
-    void com_test();
-
     void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
 
-    void on_slct_btn_apply_clicked();
+    void on_slct_cmbx_fish_currentIndexChanged(int index);
 
 private:
     Ui::MainWidget* ui;
@@ -123,6 +120,7 @@ private:
     QWebChannel* m_webchannel;
     QJoysticks* m_joystick;
     Compass* m_compass;
+    SwitchControl m_switchcontrol;
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];
@@ -168,6 +166,8 @@ private:
     uint8_t rec_pack_count;
     double loss;
 
+    uint8_t mtr_ctrl_cmd_counter;
+
     void scan_serialport();
 
     void scan_joysticks();
@@ -182,9 +182,7 @@ private:
 
     void serial_write_data(uint8_t *start_byte, uint8_t length);
 
-    uint8_t get_fish_address();
-
-    void record_file_init(QString flag);
+    void record_file_init(QString flag, QString fish);
 
     void record_file_close();
 
@@ -196,6 +194,8 @@ private:
 
     void init_tabwidget_locs();
 
+    void reset_data_display();
 
+    void record_file(QString fish);
 };
 #endif // MAINWIDGET_H

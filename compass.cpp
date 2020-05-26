@@ -39,8 +39,8 @@ void Compass::drawFrame(QPainter &painter)
 {
     painter.save();
     painter.setPen(Qt::NoPen);
-    painter.setBrush(Qt::black);
-    painter.drawEllipse(QPoint(0,0),90,90);
+    painter.setBrush(QColor(30,30,30));
+    painter.drawEllipse(QPoint(0,0),110,110);
     painter.restore();
 }
 
@@ -52,10 +52,10 @@ void Compass::drawIndicator(QPainter &painter, float course)
     painter.setPen(Qt::white);
     for (int i = 0; i < 360; i += 15){
         if (i % 90 == 0){
-            painter.drawText(QPoint(-5,-65), indicator[i / 45]);
+            painter.drawText(QPoint(-5,-80), indicator[i / 45]);
         }
         else if (i % 45 == 0){
-            painter.drawText(QPoint(-10,-65), indicator[i / 45]);
+            painter.drawText(QPoint(-10,-80), indicator[i / 45]);
         }
         painter.rotate(15);
     }
@@ -72,12 +72,12 @@ void Compass::drawScales(QPainter &painter, float course)
         if (i % 45 == 0){
             pen.setWidth(2);
             painter.setPen(pen);
-            painter.drawLine(88,0,75,0);
+            painter.drawLine(110,0,95,0);
         }
         else {
             pen.setWidth(1);
             painter.setPen(pen);
-            painter.drawLine(88,0,80,0);
+            painter.drawLine(110,0,95,0);
         }
         painter.rotate(15);
     }
@@ -87,12 +87,12 @@ void Compass::drawScales(QPainter &painter, float course)
 void Compass::drawIcon(QPainter &painter)
 {
     painter.save();
-    QBrush brush(Qt::red);
+    QBrush brush(QColor(116,0,0));
     painter.setBrush(brush);
     static const QPointF points[3] = {
-        QPointF(8, 0.0),
-        QPointF(-8, 0.0),
-        QPointF(0, -65.0),
+        QPointF(6, 0.0),
+        QPointF(-6, 0.0),
+        QPointF(0, -80.0),
     };
     painter.drawPolygon(points, 3);
     painter.restore();

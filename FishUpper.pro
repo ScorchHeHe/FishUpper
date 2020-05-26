@@ -20,16 +20,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     compass.cpp \
     main.cpp \
-    mainwidget.cpp
+    mainwidget.cpp \
+    switchcontrol.cpp
 
 HEADERS += \
     compass.h \
     datastruct.h \
-    mainwidget.h
+    mainwidget.h \
+    switchcontrol.h
 
 FORMS += \
     compass.ui \
-    mainwidget.ui
+    mainwidget.ui \
+    switchcontrol.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
