@@ -1471,10 +1471,12 @@ void MainWidget::timerEvent(QTimerEvent *event)
     }
     // joystick steer ctrl
     else if (event->timerId() == head_steer_timer) {
-        ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 10);
+        if (abs(head_steer_para) > 0.01)
+            ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 10);
     }
     else if (event->timerId() == pitch_steer_timer) {
-        ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 10);
+        if (abs(pitch_steer_para) > 0.01)
+            ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 10);
     }
 
     // map current location
@@ -1548,6 +1550,4 @@ void MainWidget::on_slct_cmbx_fish_currentIndexChanged(int index)
             current_fish = FRAME_ADDR_BOARDCAST;
             break;
     }
-    qDebug() << current_fish << endl;
-
 }
