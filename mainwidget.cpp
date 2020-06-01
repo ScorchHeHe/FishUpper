@@ -30,8 +30,7 @@ MainWidget::MainWidget(QWidget *parent)
       m_serialport(new QSerialPort),
       m_mutex(new QMutex),
       m_webchannel(new QWebChannel),
-      m_compass(new Compass),
-      m_switchcontrol(new SwitchControl)
+      m_compass(new Compass)
 {
     ui->setupUi(this);
     ui->leak_tabel_text_front->setStyleSheet("color:green");
@@ -102,7 +101,6 @@ MainWidget::MainWidget(QWidget *parent)
     current_fish = FRAME_ADDR_FISH3;
 
     qDebug()<<QDir::currentPath();
-
 }
 
 MainWidget::~MainWidget()
