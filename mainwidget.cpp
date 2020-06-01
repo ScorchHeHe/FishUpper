@@ -60,7 +60,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_webview = new QWebEngineView(ui->groupBox_auto);
     m_webview->setGeometry(QRect(10, 20, 680, 680));
-    m_webview->load(QUrl("file:///C:/G2/AUV/Beijing_AUV/Qt/FishUpper/webview/FishMap.html"));
+    m_webview->load(QUrl("file:///C:/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
