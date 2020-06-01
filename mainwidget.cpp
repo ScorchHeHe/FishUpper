@@ -99,7 +99,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     mtr_ctrl_cmd_counter = 0;
 
-    current_fish = FRAME_ADDR_FISH2;
+    current_fish = FRAME_ADDR_FISH3;
 
     qDebug()<<QDir::currentPath();
 
@@ -468,7 +468,7 @@ void MainWidget::serial_rec_data_process()
 
             }
             else {
-                ui->slct_prgsBar_battery->setValue((stm32_data.volt * 9.0 - 20) / 6.0 * 100.0);
+                ui->slct_prgsBar_battery->setValue((stm32_data.volt * 9.0 - 20) * 25.0);
             }
             break;
         // pola v6 data
@@ -1068,6 +1068,7 @@ void MainWidget::on_auto_btn_execute_clicked()
 **/
 void MainWidget::on_mtr_btn_close_all_clicked()
 {
+    ui->mtr_checkBox_bbb_ctrl->setChecked(false);
     ui->mtr_spinBox_pushMotor->setValue(500);
     ui->mtr_spinBox_headSteer->setValue(1500);
     ui->mtr_spinBox_pitchSteer->setValue(1500);
@@ -1538,13 +1539,13 @@ void MainWidget::on_slct_cmbx_fish_currentIndexChanged(int index)
 {
     switch(index) {
         case 0:
-            current_fish = FRAME_ADDR_FISH1;
+            current_fish = FRAME_ADDR_FISH3;
             break;
         case 2:
-            current_fish = FRAME_ADDR_FISH2;
+            current_fish = FRAME_ADDR_FISH1;
             break;
         case 4:
-            current_fish = FRAME_ADDR_FISH3;
+            current_fish = FRAME_ADDR_FISH2;
             break;
         case 6:
             current_fish = FRAME_ADDR_BOARDCAST;
