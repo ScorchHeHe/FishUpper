@@ -43,3 +43,5 @@ DISTFILES += \
 include ($$PWD/QJoysticks/QJoysticks.pri)
 
 RC_ICONS = subm.ico
+
+RESOURCES +=
