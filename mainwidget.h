@@ -137,6 +137,7 @@ private:
 
     float longtitude;
     float latitude;
+    float gps_heading;
 
     // current fish address
     uint8_t current_fish;

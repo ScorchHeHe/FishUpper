@@ -120,8 +120,8 @@ typedef struct{
     float yaw;
     float roll;
     float mag_heading;
-    float gps_long;
     float gps_lat;
+    float gps_long;
 } PolaV6_Data_Package;
 
 // motor control parameters
@@ -151,9 +151,9 @@ typedef struct{
 typedef struct{
     float mass_position;
     float pump_position;
-    float reserved_1;
-    float reserved_2;
-    float reserved_3;
+    float longtitude;
+    float latitude;
+    float gps_heading;
 } Posture_Para_Package;
 
 // posture contorl frame

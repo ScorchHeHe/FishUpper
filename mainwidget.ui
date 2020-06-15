@@ -675,6 +675,11 @@ color: rgb(255, 0, 0);</string>
       <widget class="QComboBox" name="fmt_cmbx_plan">
        <item>
         <property name="text">
+         <string>Stop</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Plan0</string>
         </property>
        </item>
@@ -686,6 +691,31 @@ color: rgb(255, 0, 0);</string>
        <item>
         <property name="text">
          <string>Plan2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan4</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan5</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan6</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan7</string>
         </property>
        </item>
       </widget>
@@ -1888,7 +1918,7 @@ color: rgb(255, 0, 0);</string>
       <x>40</x>
       <y>40</y>
       <width>111</width>
-      <height>80</height>
+      <height>95</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_11">
