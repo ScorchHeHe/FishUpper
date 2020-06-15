@@ -4,7 +4,6 @@
 #include "datastruct.h"
 #include "QJoysticks.h"
 #include "compass.h"
-#include "switchcontrol.h"
 #include <QWidget>
 #include <QString>
 #include <QtSerialPort>
@@ -120,7 +119,6 @@ private:
     QWebChannel* m_webchannel;
     QJoysticks* m_joystick;
     Compass* m_compass;
-    SwitchControl m_switchcontrol;
 
     // serialport recieved data buffer
     uint8_t rec_data[BUFFER_MAX_SIZE];
@@ -139,6 +137,7 @@ private:
 
     float longtitude;
     float latitude;
+    float gps_heading;
 
     // current fish address
     uint8_t current_fish;

@@ -30,8 +30,7 @@ MainWidget::MainWidget(QWidget *parent)
       m_serialport(new QSerialPort),
       m_mutex(new QMutex),
       m_webchannel(new QWebChannel),
-      m_compass(new Compass),
-      m_switchcontrol(new SwitchControl)
+      m_compass(new Compass)
 {
     ui->setupUi(this);
     ui->leak_tabel_text_front->setStyleSheet("color:green");
@@ -60,7 +59,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_webview = new QWebEngineView(ui->groupBox_auto);
     m_webview->setGeometry(QRect(10, 20, 680, 680));
-    m_webview->load(QUrl("file:///C:/G2/AUV/Beijing_AUV/Qt/FishUpper/webview/FishMap.html"));
+    m_webview->load(QUrl("file:///C:/FishMap.html"));
     m_webview->show();
 
     connect(m_serialport, SIGNAL(readyRead()), this, SLOT(serial_rec_data_addr_parse()));
@@ -68,8 +67,8 @@ MainWidget::MainWidget(QWidget *parent)
     // publish a MainWidget object to m_webchannel
     m_webchannel->registerObject("mainwidget", this);
     m_webview->page()->setWebChannel(m_webchannel);
-    ui->auto_lineEdit_longt->setText("120.3364982");
-    ui->auto_lineEdit_lat->setText("30.3137504");
+    ui->auto_lineEdit_longt->setText("119.501568");
+    ui->auto_lineEdit_lat->setText("30.329501");
 
     m_joystick = QJoysticks::getInstance();
     connect(m_joystick, SIGNAL(axisChanged(int, int, qreal)), this, SLOT(joysitck_axis(int, int, qreal)));
@@ -99,10 +98,9 @@ MainWidget::MainWidget(QWidget *parent)
 
     mtr_ctrl_cmd_counter = 0;
 
-    current_fish = FRAME_ADDR_FISH2;
+    current_fish = FRAME_ADDR_FISH3;
 
     qDebug()<<QDir::currentPath();
-
 }
 
 MainWidget::~MainWidget()
@@ -265,14 +263,14 @@ void MainWidget::serial_rec_data_addr_parse()
                 this->serial_rec_data_process();
             }
             this->connection_confirm(rec_data[0]);
-            this->record_file("Master");
+            this->record_file("Slave2");
             break;
         case FRAME_ADDR_FISH3:
             if (current_fish == FRAME_ADDR_FISH3){
                 this->serial_rec_data_process();
             }
             this->connection_confirm(rec_data[0]);
-            this->record_file("Slave2");
+            this->record_file("Master");
             break;
         case 0x00:
             break;
@@ -421,7 +419,7 @@ void MainWidget::serial_rec_data_process()
         // stm32 data
         case FRAME_FUNC_STM32:
             memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
-            ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 2));
+            ui->envir_label_text_deepth->setText(QString::number(stm32_data.deepth, 'f', 4));
             ui->envir_label_text_temper->setText(QString::number(stm32_data.temper, 'f', 2));
             ui->envir_label_text_volt->setText(QString::number(stm32_data.volt * 9.0, 'f', 3));
             ui->envir_label_text_curr->setText(QString::number((2.54 - stm32_data.curr) * 10, 'f', 3));
@@ -468,7 +466,7 @@ void MainWidget::serial_rec_data_process()
 
             }
             else {
-                ui->slct_prgsBar_battery->setValue((stm32_data.volt * 9.0 - 20) / 6.0 * 100.0);
+                ui->slct_prgsBar_battery->setValue((stm32_data.volt * 9.0 - 20) * 25.0);
             }
             break;
         // pola v6 data
@@ -493,16 +491,22 @@ void MainWidget::serial_rec_data_process()
             ui->polav6_label_text_yaw->setText(QString::number(polav6_data.yaw, 'f', 2));
             ui->polav6_label_text_roll->setText(QString::number(polav6_data.roll, 'f', 2));
             ui->polav6_label_text_mag_head->setText(QString::number(polav6_data.mag_heading, 'f', 2));
-            ui->polav6_label_text_gps_long->setText(QString::number(polav6_data.gps_long / 10000000.0, 'f', 2));
-            ui->polav6_label_text_gps_lat->setText(QString::number(polav6_data.gps_lat / 10000000.0, 'f', 2));
+            ui->polav6_label_text_gps_lat->setText(QString::number(polav6_data.gps_lat / 10000000.0, 'f', 6));
+            ui->polav6_label_text_gps_long->setText(QString::number(polav6_data.gps_long / 10000000.0, 'f', 6));
 
 
             // update current location in map(javascript)
-            longtitude = polav6_data.longtitude / 10000000.0;
-            latitude = polav6_data.latitude / 10000000.0;
+            longtitude = polav6_data.gps_long / 10000000.0;
+            latitude = polav6_data.gps_lat / 10000000.0;
+            gps_heading = polav6_data.GPS_head;
 
             // compass display
             m_compass->update_compass(polav6_data.mag_heading);
+
+            if (current_fish == FRAME_ADDR_FISH3){
+                this->on_posi_btn_load_clicked();
+            }
+
             break;
         // motor feedback
         case FRAME_FUNC_MOTOR:
@@ -911,8 +915,8 @@ void MainWidget::on_auto_btn_add_locs_clicked()
             QString add_point_cmd = QString("set_destination(%1, %2, %3);").arg(ui->auto_lineEdit_longt->text())
                     .arg(ui->auto_lineEdit_lat->text()).arg(location_count);
             m_webview->page()->runJavaScript(add_point_cmd);
-            ui->auto_lineEdit_longt->clear();
-            ui->auto_lineEdit_lat->clear();
+//            ui->auto_lineEdit_longt->clear();
+//            ui->auto_lineEdit_lat->clear();
             ++location_count;
         }
     }
@@ -1068,6 +1072,7 @@ void MainWidget::on_auto_btn_execute_clicked()
 **/
 void MainWidget::on_mtr_btn_close_all_clicked()
 {
+    ui->mtr_checkBox_bbb_ctrl->setChecked(false);
     ui->mtr_spinBox_pushMotor->setValue(500);
     ui->mtr_spinBox_headSteer->setValue(1500);
     ui->mtr_spinBox_pitchSteer->setValue(1500);
@@ -1095,13 +1100,14 @@ void MainWidget::on_posi_btn_load_clicked()
 
     posture_para.mass_position = ui->posi_spinBox_massPosi->value();
     posture_para.pump_position = ui->posi_spinBox_pumpPosi->value();
-    posture_para.reserved_1 = 1;
-    posture_para.reserved_2 = 2;
-    posture_para.reserved_3 = 3;
+    posture_para.longtitude = longtitude;
+    posture_para.latitude = latitude;
+    posture_para.gps_heading = gps_heading;
+
 
     posture_frame.head_h = FRAME_HEAD_H;
     posture_frame.head_l = FRAME_HEAD_L;
-    posture_frame.addr = current_fish;
+    posture_frame.addr = 0x55;
     posture_frame.rw = FRAME_WRITE;
     posture_frame.len = sizeof(posture_para) + 6;
     posture_frame.func_id = FRAME_FUNC_POSTURE;
@@ -1194,11 +1200,22 @@ void MainWidget::on_auto_btn_find_me_clicked()
 //    QString current_location_cmd = QString("current_location(%1, %2);").arg(lng).arg(lat);
 //    m_webview->page()->runJavaScript(current_location_cmd);
 //    lng = lng + 0.05;
-    if(!BMap_timer)
-        BMap_timer = startTimer(5000);
+    if (ui->auto_btn_find_me->text() == "FindMe") {
+        ui->auto_btn_find_me->setText("Stop");
+        if(!BMap_timer)
+            BMap_timer = startTimer(5000);
 
-    QString pan_to_current_cmd = QString("pan_to_current();");
-    m_webview->page()->runJavaScript(pan_to_current_cmd);
+    }
+    else {
+        ui->auto_btn_find_me->setText("FindMe");
+        if(BMap_timer)
+            BMap_timer = 0;
+
+    }
+
+
+//    QString pan_to_current_cmd = QString("pan_to_current();");
+//    m_webview->page()->runJavaScript(pan_to_current_cmd);
 }
 
 /**
@@ -1383,11 +1400,7 @@ void MainWidget::on_pushButton_clicked()
 //    static float angle = 15;
 //    m_compass->update_compass(angle);
 //    angle += 15;
-    Stm32_Data_Package stm32_data;
-    memcpy(&stm32_data, &rec_data[4], sizeof(stm32_data));
-    record_file_init("stm32", "Master");
-    local_record_stm32(stm32_data);
-    record_file_close();
+    this->reset_data_display();
 }
 
 /**
@@ -1409,11 +1422,29 @@ void MainWidget::on_fmt_btn_execute_clicked()
     if (ui->fmt_cmbx_plan->currentText() == "Plan0") {
         formation_para.plan = 0;
     }
-    if (ui->fmt_cmbx_plan->currentText() == "Plan1") {
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan1") {
         formation_para.plan = 1;
     }
-    if (ui->fmt_cmbx_plan->currentText() == "Plan2") {
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan2") {
         formation_para.plan = 2;
+    }
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan3") {
+        formation_para.plan = 3;
+    }
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan4") {
+        formation_para.plan = 4;
+    }
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan5") {
+        formation_para.plan = 5;
+    }
+    else if (ui->fmt_cmbx_plan->currentText() == "Stop") {
+        formation_para.plan = 10;
+    }
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan6") {
+        formation_para.plan = 6;
+    }
+    else if (ui->fmt_cmbx_plan->currentText() == "Plan7") {
+        formation_para.plan = 7;
     }
     formation_para.distance = ui->fmt_lineEdit_text_distance->text().toFloat();
     formation_para.speed = ui->fmt_lineEdit_text_speed->text().toFloat();
@@ -1471,10 +1502,12 @@ void MainWidget::timerEvent(QTimerEvent *event)
     }
     // joystick steer ctrl
     else if (event->timerId() == head_steer_timer) {
-        ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 10);
+        if (abs(head_steer_para) > 0.01)
+            ui->mtr_spinBox_headSteer->setValue(ui->mtr_spinBox_headSteer->value() - head_steer_para * 10);
     }
     else if (event->timerId() == pitch_steer_timer) {
-        ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 10);
+        if (abs(pitch_steer_para) > 0.01)
+            ui->mtr_spinBox_pitchSteer->setValue(ui->mtr_spinBox_pitchSteer->value() + pitch_steer_para * 10);
     }
 
     // map current location
@@ -1536,18 +1569,16 @@ void MainWidget::on_slct_cmbx_fish_currentIndexChanged(int index)
 {
     switch(index) {
         case 0:
-            current_fish = FRAME_ADDR_FISH1;
+            current_fish = FRAME_ADDR_FISH3;
             break;
         case 2:
-            current_fish = FRAME_ADDR_FISH2;
+            current_fish = FRAME_ADDR_FISH1;
             break;
         case 4:
-            current_fish = FRAME_ADDR_FISH3;
+            current_fish = FRAME_ADDR_FISH2;
             break;
         case 6:
             current_fish = FRAME_ADDR_BOARDCAST;
             break;
     }
-    qDebug() << current_fish << endl;
-
 }

@@ -185,46 +185,46 @@ color: rgb(255, 0, 0);</string>
    <property name="title">
     <string>Fish Selection</string>
    </property>
-   <widget class="QWidget" name="horizontalLayoutWidget_6">
+   <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>29</y>
-      <width>221</width>
+      <x>20</x>
+      <y>30</y>
+      <width>211</width>
       <height>61</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_13">
+    <layout class="QVBoxLayout" name="verticalLayout_12">
      <item>
       <widget class="QComboBox" name="slct_cmbx_fish">
        <item>
         <property name="text">
-         <string>Master</string>
+         <string>鲨鱼号(Master)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Slave1</string>
+         <string>鱿鱼号(Slave1)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Slave2</string>
+         <string>带鱼号(Slave2)</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </item>
        <item>
@@ -234,7 +234,7 @@ color: rgb(255, 0, 0);</string>
        </item>
        <item>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </item>
       </widget>
@@ -243,6 +243,12 @@ color: rgb(255, 0, 0);</string>
       <widget class="QProgressBar" name="slct_prgsBar_battery">
        <property name="value">
         <number>100</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="textDirection">
         <enum>QProgressBar::TopToBottom</enum>
@@ -326,52 +332,6 @@ color: rgb(255, 0, 0);</string>
           </size>
          </property>
         </spacer>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBox_js">
-   <property name="geometry">
-    <rect>
-     <x>1370</x>
-     <y>200</y>
-     <width>221</width>
-     <height>121</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>JoyStick Connection</string>
-   </property>
-   <widget class="QWidget" name="gridLayoutWidget_9">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>201</width>
-      <height>91</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_10">
-     <item row="0" column="0">
-      <widget class="QComboBox" name="js_cobx"/>
-     </item>
-     <item row="1" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout_14">
-       <item>
-        <widget class="QPushButton" name="js_btn_refresh">
-         <property name="text">
-          <string>Refresh</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="js_btn_connect">
-         <property name="text">
-          <string>Connect</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </item>
@@ -715,6 +675,11 @@ color: rgb(255, 0, 0);</string>
       <widget class="QComboBox" name="fmt_cmbx_plan">
        <item>
         <property name="text">
+         <string>Stop</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Plan0</string>
         </property>
        </item>
@@ -726,6 +691,31 @@ color: rgb(255, 0, 0);</string>
        <item>
         <property name="text">
          <string>Plan2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan4</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan5</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan6</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plan7</string>
         </property>
        </item>
       </widget>
@@ -1928,7 +1918,7 @@ color: rgb(255, 0, 0);</string>
       <x>40</x>
       <y>40</y>
       <width>111</width>
-      <height>80</height>
+      <height>95</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -2389,6 +2379,52 @@ color: rgb(255, 0, 0);</string>
         <string>-</string>
        </property>
       </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_js">
+   <property name="geometry">
+    <rect>
+     <x>1370</x>
+     <y>200</y>
+     <width>221</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>JoyStick Connection</string>
+   </property>
+   <widget class="QWidget" name="verticalLayoutWidget_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>191</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_13">
+     <item>
+      <widget class="QComboBox" name="js_cobx"/>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_13">
+       <item>
+        <widget class="QPushButton" name="js_btn_refresh">
+         <property name="text">
+          <string>Refresh</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="js_btn_connect">
+         <property name="text">
+          <string>Connect</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
